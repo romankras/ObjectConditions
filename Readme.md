@@ -1,0 +1,1 @@
+ObjectConditions is a small Domain-Specific Language for defining conditions based on propositional logic. Written on Sprache C# Monadic parsing library.

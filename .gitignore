@@ -1,0 +1,5 @@
+ObjectConditions/obj/
+ObjectConditions.Tests/obj/
+TestResults/
+ObjectConditions.Tests/bin/
+ObjectConditions/bin/
