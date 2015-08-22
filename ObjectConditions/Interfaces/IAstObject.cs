@@ -5,5 +5,10 @@
     /// </summary>
     public interface IAstObject
     {
+        /// <summary>
+        /// Property that contains number of children for current node of abstract sytax tree.
+        /// Currently is being used in performance tests only.
+        /// </summary>
+        int ChildrenCount { get; }
     }
 }

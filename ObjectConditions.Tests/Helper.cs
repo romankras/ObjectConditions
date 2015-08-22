@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -59,9 +60,10 @@ namespace ObjectConditions.Tests
                 throw new ArgumentOutOfRangeException("type", "Type should be an interface.");
             }
 
-            return GetAstObjectTypes(type)
-                .OrderBy(x => Guid.NewGuid())
-                .FirstOrDefault();
+            var types = GetAstObjectTypes(type);
+            var index = Random.Next(types.Count);
+
+            return types[index];
         }
 
         /// <summary>
@@ -157,22 +159,22 @@ namespace ObjectConditions.Tests
         /// Function that generates node of abstract syntax tree with random data.
         /// </summary>
         /// <param name="type">Node type.</param>
-        /// <param name="level">Current recursion level.</param>
-        /// <param name="maxLevel">Maximum recursion level.</param>
+        /// <param name="level">Current tree depth.</param>
+        /// <param name="maxLevel">Maximum allowed depth.</param>
         /// <returns>Abstract syntax tree.</returns>
-        public static IAstObject GetRandomAstObject(Type type, int level, int maxLevel)
+        public static IAstObject GetRandomAstObject(Type type, int depth, int maxDepth)
         {
             if (type == null)
             {
                 throw new ArgumentNullException("type", "Type cannot be null");
             }
 
-            if (level < 0)
+            if (depth < 0)
             {
                 throw new ArgumentOutOfRangeException("level", "Level cannot be negative.");
             }
 
-            if (maxLevel < 0)
+            if (maxDepth < 0)
             {
                 throw new ArgumentOutOfRangeException("maxLevel", "Level cannot be negative.");
             }
@@ -210,9 +212,9 @@ namespace ObjectConditions.Tests
                 return new ConfigBinaryRelation()
                 {
                     IsNegated = GetRandomBoolean(),
-                    LeftOperand = (ConfigValue)GetRandomAstObject(typeof(ConfigValue), level + 1, maxLevel),
+                    LeftOperand = (ConfigValue)GetRandomAstObject(typeof(ConfigValue), depth + 1, maxDepth),
                     Operator = GetRandomEnumValue<ConfigBinaryOperators>(),
-                    RightOperand = (ConfigValue)GetRandomAstObject(typeof(ConfigValue), level + 1, maxLevel)
+                    RightOperand = (ConfigValue)GetRandomAstObject(typeof(ConfigValue), depth + 1, maxDepth)
                 };
             }
             else if (type == typeof(StringBinaryRelation))
@@ -223,14 +225,14 @@ namespace ObjectConditions.Tests
                 var rel = new StringBinaryRelation()
                 {
                     IsNegated = GetRandomBoolean(),
-                    LeftOperand = (IStringExpression)GetRandomAstObject(typeLeft, level + 1, maxLevel),
+                    LeftOperand = (IStringExpression)GetRandomAstObject(typeLeft, depth + 1, maxDepth),
                     Operator = GetRandomEnumValue<StringBinaryOperators>(),
-                    RightOperand = (IStringExpression)GetRandomAstObject(typeRight, level + 1, maxLevel)
+                    RightOperand = (IStringExpression)GetRandomAstObject(typeRight, depth + 1, maxDepth)
                 };
 
                 if (rel.LeftOperand.GetType() == typeof(ConfigValue) && rel.RightOperand.GetType() == typeof(ConfigValue))
                 {
-                    return GetRandomAstObject(typeof(StringBinaryRelation), level, maxLevel);
+                    return GetRandomAstObject(typeof(StringBinaryRelation), depth, maxDepth);
                 }
                 else
                 {
@@ -245,14 +247,14 @@ namespace ObjectConditions.Tests
                 var rel = new NumericBinaryRelation()
                 {
                     IsNegated = GetRandomBoolean(),
-                    LeftOperand = (INumericExpression)GetRandomAstObject(typeLeft, level + 1, maxLevel),
+                    LeftOperand = (INumericExpression)GetRandomAstObject(typeLeft, depth + 1, maxDepth),
                     Operator = GetRandomEnumValue<NumericBinaryOperators>(),
-                    RightOperand = (INumericExpression)GetRandomAstObject(typeRight, level + 1, maxLevel)
+                    RightOperand = (INumericExpression)GetRandomAstObject(typeRight, depth + 1, maxDepth)
                 };
 
                 if (rel.LeftOperand.GetType() == typeof(ConfigValue) && rel.RightOperand.GetType() == typeof(ConfigValue))
                 {
-                    return GetRandomAstObject(typeof(NumericBinaryRelation), level, maxLevel);
+                    return GetRandomAstObject(typeof(NumericBinaryRelation), depth, maxDepth);
                 }
                 else
                 {
@@ -267,14 +269,14 @@ namespace ObjectConditions.Tests
                 var rel = new BooleanBinaryRelation()
                 {
                     IsNegated = GetRandomBoolean(),
-                    LeftOperand = (IBooleanExpression)GetRandomAstObject(typeLeft, level + 1, maxLevel),
+                    LeftOperand = (IBooleanExpression)GetRandomAstObject(typeLeft, depth + 1, maxDepth),
                     Operator = GetRandomEnumValue<BooleanBinaryOperators>(),
-                    RightOperand = (IBooleanExpression)GetRandomAstObject(typeRight, level + 1, maxLevel)
+                    RightOperand = (IBooleanExpression)GetRandomAstObject(typeRight, depth + 1, maxDepth)
                 };
 
                 if (rel.LeftOperand.GetType() == typeof(ConfigValue) && rel.RightOperand.GetType() == typeof(ConfigValue))
                 {
-                    return GetRandomAstObject(typeof(BooleanBinaryRelation), level, maxLevel);
+                    return GetRandomAstObject(typeof(BooleanBinaryRelation), depth, maxDepth);
                 }
                 else
                 {
@@ -286,14 +288,14 @@ namespace ObjectConditions.Tests
                 // since our grammar is right-recursive we allow only teminal expressions in the left hand
                 var typeLeft = GetRandomAstType(typeof(ITerminalExpression));
                 // random terminal if maximum recursion level is reached
-                var typeRight = level >= maxLevel ? GetRandomAstType(typeof(ITerminalExpression)) : GetRandomAstType(typeof(ILogicalExpression));
+                var typeRight = depth >= maxDepth ? GetRandomAstType(typeof(ITerminalExpression)) : GetRandomAstType(typeof(ILogicalExpression));
 
                 return new LogicalBinaryRelation()
                 {
                     IsNegated = GetRandomBoolean(),
-                    LeftOperand = (ILogicalExpression)GetRandomAstObject(typeLeft, level + 1, maxLevel),
+                    LeftOperand = (ILogicalExpression)GetRandomAstObject(typeLeft, depth + 1, maxDepth),
                     Operator = GetRandomEnumValue<LogicalBinaryOperators>(),
-                    RightOperand = (ILogicalExpression)GetRandomAstObject(typeRight, level + 1, maxLevel)
+                    RightOperand = (ILogicalExpression)GetRandomAstObject(typeRight, depth + 1, maxDepth)
                 };
             }
 
@@ -577,11 +579,12 @@ namespace ObjectConditions.Tests
         /// <summary>
         /// Function that generates random abstract syntax tree.
         /// </summary>
+        /// <param name="maxDepth">Maximum allowed depth of the tree.</param>
         /// <returns>Abstract syntax tree.</returns>
-        public static ILogicalExpression GetRandomAst()
+        public static ILogicalExpression GetRandomAst(int maxDepth)
         {
             var root = GetRandomAstType(typeof(ILogicalExpression));
-            return (ILogicalExpression)GetRandomAstObject(root, 0, 10);
+            return (ILogicalExpression)GetRandomAstObject(root, 0, maxDepth);
         }
 
         /// <summary>
@@ -617,6 +620,23 @@ namespace ObjectConditions.Tests
             catch (AssertFailedException ex)
             {
                 throw new AssertFailedException(String.Format("Exception: {0} ; Input {1}", ex.Message, input), ex);
+            }
+        }
+
+        /// <summary>
+        /// Function that creates text file in gnuplot format with data that has been extracted during performance test.
+        /// If the file already exist, overwrites it.
+        /// </summary>
+        /// <param name="filename">File name.</param>
+        /// <param name="data">Data.</param>
+        public static void CreateDataFile(string filename, List<Tuple<int, double>> data)
+        {
+            using(var stream = new StreamWriter(filename, false))
+            {
+                foreach (var measurement in data)
+                {
+                    stream.WriteLine(String.Format("{0}   {1}", measurement.Item1, measurement.Item2));
+                }
             }
         }
     }

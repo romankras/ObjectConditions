@@ -9,6 +9,14 @@ namespace ObjectConditions
     {
         public string Value { get; set; }
 
+        public int ChildrenCount
+        {
+            get
+            {
+                return 0;
+            }
+        }
+
         /// <summary>
         /// Since there is no binding to real system, the function evaluate the object always in that way.
         /// </summary>

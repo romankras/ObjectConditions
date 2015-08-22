@@ -42,7 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AstEvaluationException.cs" />
+    <Compile Include="AstClasses\AstEvaluationException.cs" />
     <Compile Include="AstClasses\BooleanBinaryRelation.cs" />
     <Compile Include="AstClasses\BooleanBinaryOperators.cs" />
     <Compile Include="AstClasses\BooleanValue.cs" />

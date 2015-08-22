@@ -9,6 +9,14 @@ namespace ObjectConditions
     {
         public string Value { get; set; }
 
+        public int ChildrenCount
+        {
+            get
+            {
+                return 0;
+            }
+        }
+
         public string EvaluateStringExpression()
         {
             return Value;

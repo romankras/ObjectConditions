@@ -16,7 +16,7 @@ namespace ObjectConditions.Tests
         {
             for (int i = 0; i < 1000; i++)
             {
-                var test = Helper.GetRandomAst() as ILogicalExpression;
+                var test = Helper.GetRandomAst(10) as ILogicalExpression;
                 var str = String.Format(
                     "{0}{1}{2}",
                     Helper.GetRandomCommentOrWhitespace(),

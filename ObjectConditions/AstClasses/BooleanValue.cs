@@ -9,6 +9,14 @@ namespace ObjectConditions
     {
         public bool Value { get; set; }
 
+        public int ChildrenCount
+        {
+            get
+            {
+                return 0;
+            }
+        }
+
         public bool EvaluateBooleanExpression()
         {
             return Value;

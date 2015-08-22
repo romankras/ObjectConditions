@@ -15,6 +15,17 @@ namespace ObjectConditions
 
         public INumericExpression RightOperand { get; set; }
 
+        public int ChildrenCount
+        {
+            get
+            {
+                // the object itself
+                return 3
+                       + RightOperand.ChildrenCount
+                       + LeftOperand.ChildrenCount;
+            }
+        }
+
         public bool EvaluateLogicalExpression()
         {
             bool result;

@@ -58,6 +58,7 @@
     <Compile Include="Helper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BoundaryConditions.cs" />
+    <Compile Include="PerformanceTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ObjectConditions\ObjectConditions.csproj">
