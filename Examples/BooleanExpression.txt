@@ -1,0 +1,2 @@
+// example of valid rule that consist of boolean expression
+ConfigValue::TheValue = true

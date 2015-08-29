@@ -1,0 +1,2 @@
+// example of valid rule that consist of expression with config values
+ConfigValue::TheValue1 = ConfigValue::TheValue2
