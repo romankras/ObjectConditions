@@ -37,6 +37,17 @@ namespace ObjectConditions.Tests
         }
 
         /// <summary>
+        /// Test that checks all input to be parsed until the end of input (line terminator).
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ParseException))]
+        public void InvalidTokenInsteadOfEndOfInput()
+        {
+            var test = "ConfigValue::TheValue = true )))))))))";
+            LanguageGrammar.ParseAst.Parse(test);
+        }
+
+        /// <summary>
         /// Operators could not be separated by whitespaces from expressions.
         /// </summary>
         [TestMethod]

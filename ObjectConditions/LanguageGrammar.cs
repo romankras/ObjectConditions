@@ -313,13 +313,15 @@ namespace ObjectConditions
         /// start =
         ///     WhitespacesOrComments,
         ///     ( LogicalBinaryRelation | GenericLogicalExpression),
-        ///     WhitespacesOrComments
+        ///     WhitespacesOrComments,
+        ///     End of Input
         /// </summary>
         public static Parser<ILogicalExpression> ParseAst =
             from ws1 in WhitespacesOrComments
             from expr in LogicalBinaryRelation
                          .Or<ILogicalExpression>(GenericLogicalExpression)
             from ws2 in WhitespacesOrComments
+            from end in Parse.LineTerminator
             select expr;
     }
 }
