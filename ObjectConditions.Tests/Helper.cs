@@ -639,5 +639,22 @@ namespace ObjectConditions.Tests
                 }
             }
         }
+
+        /// <summary>
+        /// Function that creates text file in gnuplot format with data that has been extracted during performance test.
+        /// If the file already exist, overwrites it.
+        /// </summary>
+        /// <param name="filename">File name.</param>
+        /// <param name="data">Data.</param>
+        public static void CreateDataFile(string filename, List<Tuple<int, long>> data)
+        {
+            using (var stream = new StreamWriter(filename, false))
+            {
+                foreach (var measurement in data)
+                {
+                    stream.WriteLine(String.Format("{0}   {1}", measurement.Item1, measurement.Item2));
+                }
+            }
+        }
     }
 }
