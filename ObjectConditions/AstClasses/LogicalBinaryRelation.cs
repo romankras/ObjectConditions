@@ -77,10 +77,12 @@ namespace ObjectConditions
 
         public override int GetHashCode()
         {
-            return this.LeftOperand.GetHashCode()
-                 + (int)this.Operator * 0x00010000
-                 + this.RightOperand.GetHashCode()
-                 + this.IsNegated.GetHashCode();
+            int hash = 37;
+            hash = hash * 29 + this.LeftOperand.GetHashCode();
+            hash = hash * 29 + (int)this.Operator;
+            hash = hash * 29 + this.RightOperand.GetHashCode();
+            hash = hash * 29 + this.IsNegated.GetHashCode();
+            return hash;
         }
 
         public static bool operator ==(LogicalBinaryRelation lhs, LogicalBinaryRelation rhs)
