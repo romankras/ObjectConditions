@@ -1,17 +1,15 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ObjectConditions;
-using Sprache;
+using NUnit.Framework;
 
 namespace ObjectConditions.Tests
 {
-    [TestClass]
+    [TestFixture]
     public class FuzzTest
     {
         /// <summary>
         /// Main fuzz test that checks any syntax tree that could be derived.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void MainFuzzTest()
         {
             for (int i = 0; i < 1000; i++)
@@ -31,7 +29,7 @@ namespace ObjectConditions.Tests
         /// <summary>
         /// Fuzz test that checks ConfigValue element of abstract syntax tree.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void ConfigValueFuzzTest()
         {
             for (int i = 0; i < 20; i++)
@@ -49,7 +47,7 @@ namespace ObjectConditions.Tests
         /// <summary>
         /// Fuzz test that checks BooleanValue element of abstract syntax tree.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void BooleanValueFuzzTest()
         {
             for (int i = 0; i < 20; i++)
@@ -65,7 +63,7 @@ namespace ObjectConditions.Tests
         /// <summary>
         /// Fuzz test that checks NumericValue element of abstract syntax tree.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void NumericValueFuzzTest()
         {
             for (int i = 0; i < 20; i++)
@@ -81,7 +79,7 @@ namespace ObjectConditions.Tests
         /// <summary>
         /// Fuzz test that checks StringValue element of abstract syntax tree.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void StringValueFuzzTest()
         {
             for (int i = 0; i < 20; i++)
@@ -97,7 +95,7 @@ namespace ObjectConditions.Tests
         /// <summary>
         /// Fuzz test that checks StringBinaryRelation element of abstract syntax tree.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void StringBinaryRelationFuzzTest()
         {
             for (int i = 0; i < 20; i++)
@@ -113,7 +111,7 @@ namespace ObjectConditions.Tests
         /// <summary>
         /// Fuzz test that checks ConfigBinaryRelation element of abstract syntax tree.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void ConfigBinaryRelationFuzzTest()
         {
             for (int i = 0; i < 100; i++)
@@ -129,7 +127,7 @@ namespace ObjectConditions.Tests
         /// <summary>
         /// Fuzz test that checks BooleanBinaryRelation element of abstract syntax tree.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void BooleanBinaryRelationFuzzTest()
         {
             for (int i = 0; i < 20; i++)
@@ -145,7 +143,7 @@ namespace ObjectConditions.Tests
         /// <summary>
         /// Fuzz test that checks NumericBinaryRelation element of abstract syntax tree.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void NumericBinaryRelationFuzzTest()
         {
             for (int i = 0; i < 100; i++)
@@ -161,7 +159,7 @@ namespace ObjectConditions.Tests
         /// <summary>
         /// Fuzz test that checks LogicalBinaryRelation element of abstract syntax tree.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void LogicalBinaryRelationFuzzTest()
         {
             for (int i = 0; i < 100; i++)
@@ -177,7 +175,7 @@ namespace ObjectConditions.Tests
         /// <summary>
         /// Fuzz test that create random BooleanBinaryRelation object and inverts it's IsNegated flag.
         /// </summary>
-        [TestMethod]
+        [Test]
         public void NegationFuzzTest()
         {
             for (int i = 0; i < 20; i++)

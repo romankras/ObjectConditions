@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ObjectConditions;
+using NUnit.Framework;
 using Sprache;
 
 namespace ObjectConditions.Tests
 {
-    [TestClass]
+    [TestFixture]
     public class PerformanceTest
     {
         private static List<Tuple<int, long>> memoryData;
@@ -25,7 +24,7 @@ namespace ObjectConditions.Tests
             Thread.Sleep(10);
         }
 
-        [TestMethod]
+        [Test]
         public void GeneralPerformance()
         {
             var data = new List<Tuple<int, double>>();

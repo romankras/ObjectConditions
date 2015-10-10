@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ObjectConditions;
+using NUnit.Framework;
 using Sprache;
 
 namespace ObjectConditions.Tests
@@ -617,9 +616,9 @@ namespace ObjectConditions.Tests
             {
                 Assert.AreEqual(expected, actual);
             }
-            catch (AssertFailedException ex)
+            catch (Exception ex)
             {
-                throw new AssertFailedException(String.Format("Exception: {0} ; Input {1}", ex.Message, input), ex);
+                throw new Exception(String.Format("Exception: {0} ; Input {1}", ex.Message, input), ex);
             }
         }
 
