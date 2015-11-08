@@ -1,9 +1,6 @@
 ﻿namespace ObjectConditions
 {
-    /// <summary>
-    /// Operators which could be used in numeric binary relation.
-    /// </summary>
-    public enum NumericBinaryOperators
+    public enum BinaryOperators
     {
         None = 0,
 
@@ -17,6 +14,12 @@
 
         LessThan = 5,
 
-        LessOrEqual = 6
+        LessOrEqual = 6,
+
+        Conjunction = 7,
+
+        Disjunction = 8,
+
+        Implication = 9
     }
 }

@@ -58,7 +58,6 @@
     <Compile Include="Helper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BoundaryConditions.cs" />
-    <Compile Include="PerformanceTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ObjectConditions\ObjectConditions.csproj">
@@ -67,7 +66,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
