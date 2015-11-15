@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ObjectConditions
 {
@@ -63,5 +64,7 @@ namespace ObjectConditions
         {
             return !(lhs == rhs);
         }
+
+        public List<IExpression> Children => new List<IExpression>();
     }
 }

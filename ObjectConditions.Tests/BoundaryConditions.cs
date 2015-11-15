@@ -156,5 +156,21 @@ namespace ObjectConditions.Tests
             var parsed = LanguageGrammar.ParseExpression.Parse(str);
             Assert.AreEqual(ast, parsed);
         }
+
+        [Test]
+        public void ObjectCountTest()
+        {
+            var ast = new BinaryRelation()
+            {
+                IsNegated = false,
+                Left = new TypedObject(),
+                Operator = BinaryOperators.LessThan,
+                Right = new ObjectValue()
+            };
+
+            Assert.AreEqual(2, ast.Children.Count);
+            Assert.AreEqual(0, ast.Children[0].Children.Count);
+            Assert.AreEqual(0, ast.Children[1].Children.Count);
+        }
     }
 }
