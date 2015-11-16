@@ -29,15 +29,15 @@ namespace ObjectConditions
             if (GetType() != val.GetType())
                 return false;
 
-            return val.Value.Equals(Value)
-                && val.IsNegated.Equals(IsNegated);
+            return val.Value == Value
+                && val.IsNegated == IsNegated;
         }
 
         public override int GetHashCode()
         {
             var hash = 37;
             hash = hash * 29 + IsNegated.GetHashCode();
-            hash = hash * 29 + Value.GetHashCode();
+            hash = hash * 29 + (Value?.GetHashCode() ?? 0);
             return hash;
         }
 

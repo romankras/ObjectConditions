@@ -67,14 +67,10 @@ namespace ObjectConditions.Tests
 
             var parsed = LanguageGrammar.ParseExpression.Parse(str);
             Assert.AreEqual(ast, parsed);
-        }
 
-        [Test]
-        public void OrdinaryBinaryRelationTest2()
-        {
-            const string str = "3O3MDn2I >!   Hmys6L2I::Df4A1pzX";
+            const string str2 = "3O3MDn2I >!   Hmys6L2I::Df4A1pzX";
 
-            var ast = new BinaryRelation()
+            var ast2 = new BinaryRelation()
             {
                 IsNegated = false,
                 Left = new ObjectValue()
@@ -91,8 +87,8 @@ namespace ObjectConditions.Tests
                 }
             };
 
-            var parsed = LanguageGrammar.ParseExpression.Parse(str);
-            Assert.AreEqual(ast, parsed);
+            var parsed2 = LanguageGrammar.ParseExpression.Parse(str2);
+            Assert.AreEqual(ast2, parsed2);
         }
 
         [Test]
@@ -171,6 +167,58 @@ namespace ObjectConditions.Tests
             Assert.AreEqual(2, ast.Children.Count);
             Assert.AreEqual(0, ast.Children[0].Children.Count);
             Assert.AreEqual(0, ast.Children[1].Children.Count);
+
+            ast = new BinaryRelation()
+            {
+                IsNegated = true,
+                Left = new BinaryRelation()
+                {
+                    IsNegated = true,
+                    Left = new ObjectValue()
+                    {
+                        IsNegated = false,
+                        Value = "value1"
+                    },
+                    Operator = BinaryOperators.Equality,
+                    Right = new TypedObject()
+                    {
+                        IsNegated = false,
+                        Name = "object1",
+                        ObjectType = "type1"
+                    }
+                },
+                Operator = BinaryOperators.Equality,
+                Right = new TypedObject()
+                {
+                    IsNegated = false,
+                    Name = "object2",
+                    ObjectType = "type2"
+                }
+            };
+
+            var flat = Helper.GetFlatTree(ast);
+            Assert.AreEqual(5, flat.Count);
+        }
+
+        [Test]
+        public void EmptyObjectsTest()
+        {
+            var ast = new BinaryRelation()
+            {
+                IsNegated = true,
+                Left = new BinaryRelation()
+                {
+                    IsNegated = true,
+                    Left = new ObjectValue(),
+                    Operator = BinaryOperators.Equality,
+                    Right = new TypedObject()
+                },
+                Operator = BinaryOperators.Equality,
+                Right = new TypedObject()
+            };
+
+            var flat = Helper.GetFlatTree(ast);
+            Assert.AreEqual(5, flat.Count);
         }
     }
 }

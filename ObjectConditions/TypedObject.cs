@@ -31,17 +31,17 @@ namespace ObjectConditions
             if (GetType() != obj.GetType())
                 return false;
 
-            return obj.IsNegated.Equals(IsNegated)
-                && obj.ObjectType.Equals(ObjectType)
-                && obj.Name.Equals(Name);
+            return obj.IsNegated == IsNegated
+                && obj.ObjectType == ObjectType
+                && obj.Name == Name;
         }
 
         public override int GetHashCode()
         {
             var hash = 37;
             hash = hash * 29 + IsNegated.GetHashCode();
-            hash = hash * 29 + ObjectType.GetHashCode();
-            hash = hash * 29 + Name.GetHashCode();
+            hash = hash * 29 + (ObjectType?.GetHashCode() ?? 0);
+            hash = hash * 29 + (Name?.GetHashCode() ?? 0);
             return hash;
         }
 

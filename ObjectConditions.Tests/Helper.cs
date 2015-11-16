@@ -311,5 +311,19 @@ namespace ObjectConditions.Tests
                 throw new Exception(String.Format("Exception: {0} ; Input {1}", ex.Message, input), ex);
             }
         }
+
+        public static List<IExpression> GetFlatTree(IExpression ast)
+        {
+            if (ast == null)
+            {
+                throw new ArgumentNullException(nameof(ast), "Ast element should be not null.");
+            }
+
+            return ast
+                    .Children
+                    .SelectMany(GetFlatTree)
+                    .Concat(new List<IExpression>() { ast })
+                    .ToList();
+        }
     }
 }

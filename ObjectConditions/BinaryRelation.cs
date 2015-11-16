@@ -33,18 +33,18 @@ namespace ObjectConditions
             if (GetType() != rel.GetType())
                 return false;
 
-            return rel.Left.Equals(Left)
-                && rel.Operator.Equals(Operator)
-                && rel.Right.Equals(Right)
-                && rel.IsNegated.Equals(IsNegated);
+            return Equals(rel.Left, Left)
+                && rel.Operator == Operator
+                && Equals(rel.Right, Right)
+                && rel.IsNegated == IsNegated;
         }
 
         public override int GetHashCode()
         {
             var hash = 37;
-            hash = hash * 29 + Left.GetHashCode();
+            hash = hash * 29 + (Left?.GetHashCode() ?? 0);
             hash = hash * 29 + (int)Operator;
-            hash = hash * 29 + Right.GetHashCode();
+            hash = hash * 29 + (Right?.GetHashCode() ?? 0);
             hash = hash * 29 + IsNegated.GetHashCode();
             return hash;
         }
