@@ -50,6 +50,8 @@
     <Compile Include="ITerminalExpression.cs" />
     <Compile Include="LanguageGrammar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnaryRelation.cs" />
+    <Compile Include="UnaryOperators.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

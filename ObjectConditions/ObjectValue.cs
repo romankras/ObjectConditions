@@ -5,8 +5,6 @@ namespace ObjectConditions
 {
     public class ObjectValue: IExpression, ITerminalExpression, IEquatable<ObjectValue>
     {
-        public bool IsNegated { get; set; }
-
         public string Value { get; set; }
 
         public override bool Equals(object obj)
@@ -29,14 +27,12 @@ namespace ObjectConditions
             if (GetType() != val.GetType())
                 return false;
 
-            return val.Value == Value
-                && val.IsNegated == IsNegated;
+            return val.Value == Value;
         }
 
         public override int GetHashCode()
         {
             var hash = 37;
-            hash = hash * 29 + IsNegated.GetHashCode();
             hash = hash * 29 + (Value?.GetHashCode() ?? 0);
             return hash;
         }

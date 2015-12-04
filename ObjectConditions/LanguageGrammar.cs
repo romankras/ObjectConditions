@@ -24,13 +24,17 @@ namespace ObjectConditions
                     .Or(Parse.String("<=").Return(BinaryOperators.LessOrEqual))
                     .Or(Parse.String("<").Return(BinaryOperators.LessThan));
 
+        private static readonly Parser<UnaryOperators> UnaryOperator =
+                Parse.Char('!').Return(UnaryOperators.Negation)
+                    .Or(Parse.String("Exist").Return(UnaryOperators.Exist)
+                    .Or(Parse.String("NotExist").Return(UnaryOperators.NotExist)));
+
         private static readonly Parser<TypedObject> TypedObject =
                 from type in Parse.LetterOrDigit.Many().Text().Token()
                 from del in Parse.String("::").Once()
                 from name in Parse.LetterOrDigit.Many().Text().Token()
                 select new TypedObject()
                 {
-                    IsNegated = false,
                     Name = name,
                     ObjectType = type
                 };
@@ -39,10 +43,18 @@ namespace ObjectConditions
                 from val in Parse.LetterOrDigit.Many().Text().Token()
                 select new ObjectValue()
                 {
-                    IsNegated = false,
                     Value = val
                 };
 
+        private static readonly Parser<UnaryRelation> UnaryRelation =
+                from op in UnaryOperator
+                from ws in WhitespacesOrComments
+                from exp in Parse.Ref(() => GeneralExpression)
+                select new UnaryRelation()
+                {
+                    Expression = exp,
+                    Operator = op
+                };
 
         private static readonly Parser<BinaryRelation> BinaryRelation =
                 from left in Parse.Ref(() => GeneralExpression)
@@ -53,7 +65,6 @@ namespace ObjectConditions
                               .Or(GeneralExpression)
                 select new BinaryRelation()
                 {
-                    IsNegated = false,
                     Left = left,
                     Operator = op,
                     Right = right
@@ -68,22 +79,9 @@ namespace ObjectConditions
                 from close in Parse.Char(')').Once()
                 select expr;
 
-        private static readonly Parser<IExpression> NegatedExpression =
-                from neg in Parse.Char('!').Once()
-                from ws1 in WhitespacesOrComments
-                from expr in (GeneralExpression
-                                .Or(BinaryRelation))
-                             .Select(
-                                x =>
-                                    {
-                                        x.IsNegated = !x.IsNegated;
-                                        return x;
-                                    })
-                select expr;
-
         private static readonly Parser<IExpression> GeneralExpression =
-            NegatedExpression
-                .Or(ParenthesisExpression)
+                ParenthesisExpression
+                .Or(UnaryRelation)
                 .Or(TypedObject)
                 .Or(ObjectValue);
 

@@ -11,32 +11,35 @@ namespace ObjectConditions.Tests
         {
             const string str = "!(!(true   =   ConfigValue::dvfyBPS4   )   =   ConfigValue::dvfyBPS4   )";
 
-            var ast = new BinaryRelation()
+            var ast = new UnaryRelation()
             {
-                IsNegated = true,
-                Left = new BinaryRelation()
+                Expression = new BinaryRelation()
                 {
-                    IsNegated = true,
-                    Left = new ObjectValue()
+                    Left = new UnaryRelation()
                     {
-                        IsNegated = false,
-                        Value = "true"
+                        Expression = new BinaryRelation()
+                        {
+                            Left = new ObjectValue()
+                            {
+                                Value = "true"
+                            },
+                            Operator = BinaryOperators.Equality,
+                            Right = new TypedObject()
+                            {
+                                Name = "dvfyBPS4",
+                                ObjectType = "ConfigValue"
+                            }
+                        },
+                        Operator = UnaryOperators.Negation
                     },
                     Operator = BinaryOperators.Equality,
                     Right = new TypedObject()
                     {
-                        IsNegated = false,
                         Name = "dvfyBPS4",
                         ObjectType = "ConfigValue"
                     }
                 },
-                Operator = BinaryOperators.Equality,
-                Right = new TypedObject()
-                {
-                    IsNegated = false,
-                    Name = "dvfyBPS4",
-                    ObjectType = "ConfigValue"
-                }
+                Operator = UnaryOperators.Negation
             };
 
             var parsed = LanguageGrammar.ParseExpression.Parse(str);
@@ -50,16 +53,13 @@ namespace ObjectConditions.Tests
 
             var ast = new BinaryRelation()
             {
-                IsNegated = false,
                 Left = new ObjectValue()
                 {
-                    IsNegated = false,
                     Value = "Yga9SELk"
                 },
                 Operator = BinaryOperators.LessThan,
                 Right = new TypedObject()
                 {
-                    IsNegated = false,
                     Name = "XtuJduTe",
                     ObjectType = "MDJoNveF"
                 }
@@ -72,18 +72,19 @@ namespace ObjectConditions.Tests
 
             var ast2 = new BinaryRelation()
             {
-                IsNegated = false,
                 Left = new ObjectValue()
                 {
-                    IsNegated = false,
                     Value = "3O3MDn2I"
                 },
                 Operator = BinaryOperators.GreaterThan,
-                Right = new TypedObject()
+                Right = new UnaryRelation()
                 {
-                    IsNegated = true,
-                    Name = "Df4A1pzX",
-                    ObjectType = "Hmys6L2I"
+                    Expression = new TypedObject()
+                    {
+                        Name = "Df4A1pzX",
+                        ObjectType = "Hmys6L2I"
+                    },
+                    Operator = UnaryOperators.Negation
                 }
             };
 
@@ -98,26 +99,25 @@ namespace ObjectConditions.Tests
 
             var ast = new BinaryRelation()
             {
-                IsNegated = false,
                 Left = new ObjectValue()
                 {
-                    IsNegated = false,
                     Value = "GeeNBdZD"
                 },
                 Operator = BinaryOperators.LessOrEqual,
                 Right = new BinaryRelation()
                 {
-                    IsNegated = false,
-                    Left = new TypedObject()
+                    Left = new UnaryRelation()
                     {
-                        IsNegated = true,
-                        Name = "SfE3OcCH",
-                        ObjectType = "YkNnEypc"
+                        Expression = new TypedObject()
+                        {
+                            Name = "SfE3OcCH",
+                            ObjectType = "YkNnEypc"
+                        },
+                        Operator = UnaryOperators.Negation
                     },
                     Operator = BinaryOperators.Conjunction,
                     Right = new ObjectValue()
                     {
-                        IsNegated = false,
                         Value = "yVcxvXwH"
                     }
                 }
@@ -134,17 +134,22 @@ namespace ObjectConditions.Tests
 
             var ast = new BinaryRelation()
             {
-                IsNegated = false,
-                Left = new TypedObject()
+                Left = new UnaryRelation()
                 {
-                    IsNegated = false,
-                    Name = "V2dnlJGW",
-                    ObjectType = "VFcsfyxF"
+                    Expression = new UnaryRelation()
+                    {
+                        Expression = new TypedObject()
+                        {
+                            Name = "V2dnlJGW",
+                            ObjectType = "VFcsfyxF"
+                        },
+                        Operator = UnaryOperators.Negation
+                    },
+                    Operator = UnaryOperators.Negation
                 },
                 Operator = BinaryOperators.LessThan,
                 Right = new ObjectValue()
                 {
-                    IsNegated = false,
                     Value = "1yjlGOQR"
                 }
             };
@@ -154,11 +159,10 @@ namespace ObjectConditions.Tests
         }
 
         [Test]
-        public void ObjectCountTest()
+        public void ChildrenTest()
         {
             var ast = new BinaryRelation()
             {
-                IsNegated = false,
                 Left = new TypedObject(),
                 Operator = BinaryOperators.LessThan,
                 Right = new ObjectValue()
@@ -170,19 +174,15 @@ namespace ObjectConditions.Tests
 
             ast = new BinaryRelation()
             {
-                IsNegated = true,
                 Left = new BinaryRelation()
                 {
-                    IsNegated = true,
                     Left = new ObjectValue()
                     {
-                        IsNegated = false,
                         Value = "value1"
                     },
                     Operator = BinaryOperators.Equality,
                     Right = new TypedObject()
                     {
-                        IsNegated = false,
                         Name = "object1",
                         ObjectType = "type1"
                     }
@@ -190,7 +190,6 @@ namespace ObjectConditions.Tests
                 Operator = BinaryOperators.Equality,
                 Right = new TypedObject()
                 {
-                    IsNegated = false,
                     Name = "object2",
                     ObjectType = "type2"
                 }
@@ -205,10 +204,8 @@ namespace ObjectConditions.Tests
         {
             var ast = new BinaryRelation()
             {
-                IsNegated = true,
                 Left = new BinaryRelation()
                 {
-                    IsNegated = true,
                     Left = new ObjectValue(),
                     Operator = BinaryOperators.Equality,
                     Right = new TypedObject()
@@ -219,6 +216,142 @@ namespace ObjectConditions.Tests
 
             var flat = Helper.GetFlatTree(ast);
             Assert.AreEqual(5, flat.Count);
+        }
+
+        [Test]
+        public void UnaryRelationTest()
+        {
+            const string str = "!(mwrt5xDK)";
+
+            var ast = new UnaryRelation()
+            {
+                Expression = new ObjectValue()
+                {
+                    Value = "mwrt5xDK"
+                },
+                Operator = UnaryOperators.Negation
+            };
+
+            var parsed = LanguageGrammar.ParseExpression.Parse(str);
+            Assert.AreEqual(ast, parsed);
+        }
+
+        [Test]
+        public void BinaryRelationWithUnaryRelation()
+        {
+            const string str = "w4oKP4rl::sHjPcCRy Or NotExist(mwrt5xDK)";
+
+            var ast = new BinaryRelation()
+            {
+                Left = new TypedObject()
+                {
+                    Name = "sHjPcCRy",
+                    ObjectType = "w4oKP4rl"
+                },
+                Operator = BinaryOperators.Disjunction,
+                Right = new UnaryRelation()
+                {
+                    Operator = UnaryOperators.NotExist,
+                    Expression = new ObjectValue()
+                    {
+                        Value = "mwrt5xDK"
+                    }
+                }
+            };
+
+            var parsed = LanguageGrammar.ParseExpression.Parse(str);
+            Assert.AreEqual(ast, parsed);
+        }
+
+        [Test]
+        public void NestingOrderTest2()
+        {
+            const string str = "LzRukkRk >= Exist OnKWASDq < E3oIKzi8::85CzQIV2";
+
+            var ast = new BinaryRelation()
+            {
+                Left = new ObjectValue()
+                {
+                    Value = "LzRukkRk"
+                },
+                Operator = BinaryOperators.GreaterOrEqual,
+                Right = new BinaryRelation()
+                {
+                    Left = new UnaryRelation()
+                    {
+                        Expression = new ObjectValue()
+                        {
+                            Value = "OnKWASDq"
+                        },
+                        Operator = UnaryOperators.Exist,
+                    },
+                    Operator = BinaryOperators.LessThan,
+                    Right = new TypedObject()
+                    {
+                        ObjectType = "E3oIKzi8",
+                        Name = "85CzQIV2"
+                    }
+                }
+            };
+
+            var parsed = LanguageGrammar.ParseExpression.Parse(str);
+            Assert.AreEqual(ast, parsed);
+        }
+
+        [Test]
+        public void NestingOrderTest3()
+        {
+            const string str = "xHlqT243::1bRn2sQA < ! NotExist VzN6P0Lb::zSm2eseU > ZesXQQU1 = Exist !(JXXPBsEv)";
+
+            var ast = new BinaryRelation()
+            {
+                Left = new TypedObject()
+                {
+                    Name = "1bRn2sQA",
+                    ObjectType = "xHlqT243"
+                },
+                Operator = BinaryOperators.LessThan,
+                Right = new BinaryRelation()
+                {
+                    Left = new UnaryRelation()
+                    {
+                        Expression = new UnaryRelation()
+                        {
+                            Expression = new TypedObject()
+                            {
+                                ObjectType = "VzN6P0Lb",
+                                Name = "zSm2eseU"
+                            },
+                            Operator = UnaryOperators.NotExist
+                        },
+                        Operator = UnaryOperators.Negation
+                    },
+                    Operator = BinaryOperators.GreaterThan,
+                    Right = new BinaryRelation()
+                    {
+                        Left = new ObjectValue()
+                        {
+                            Value = "ZesXQQU1"
+                        },
+                        Operator = BinaryOperators.Equality,
+                        Right = new UnaryRelation()
+                        {
+                            Expression = new UnaryRelation()
+                            {
+                                Expression = new ObjectValue()
+                                {
+                                    Value = "JXXPBsEv",
+                                },
+                                Operator = UnaryOperators.Negation
+                            },
+                            Operator = UnaryOperators.Exist
+                        }
+                    }
+                }
+            };
+
+            var parsed = LanguageGrammar.ParseExpression.Parse(str);
+            Assert.AreEqual(ast, parsed);
         }
     }
 }

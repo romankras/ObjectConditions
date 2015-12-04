@@ -5,8 +5,6 @@ namespace ObjectConditions
 {
     public class TypedObject: IExpression, ITerminalExpression, IEquatable<TypedObject>
     {
-        public bool IsNegated { get; set; }
-
         public string ObjectType { get; set; }
 
         public string Name { get; set; }
@@ -31,15 +29,13 @@ namespace ObjectConditions
             if (GetType() != obj.GetType())
                 return false;
 
-            return obj.IsNegated == IsNegated
-                && obj.ObjectType == ObjectType
+            return obj.ObjectType == ObjectType
                 && obj.Name == Name;
         }
 
         public override int GetHashCode()
         {
             var hash = 37;
-            hash = hash * 29 + IsNegated.GetHashCode();
             hash = hash * 29 + (ObjectType?.GetHashCode() ?? 0);
             hash = hash * 29 + (Name?.GetHashCode() ?? 0);
             return hash;

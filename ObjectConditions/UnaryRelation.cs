@@ -3,20 +3,20 @@ using System.Collections.Generic;
 
 namespace ObjectConditions
 {
-    public class BinaryRelation: IExpression, IEquatable<BinaryRelation>
+    public class UnaryRelation: IExpression, IEquatable<UnaryRelation>
     {
-        public IExpression Left { get; set; }
+        public IExpression Expression { get; set; }
 
-        public BinaryOperators Operator { get; set; }
+        public UnaryOperators Operator { get; set; }
 
-        public IExpression Right { get; set; }
+        public List<IExpression> Children => new List<IExpression>() { Expression };
 
         public override bool Equals(object obj)
         {
-            return Equals(obj as BinaryRelation);
+            return Equals(obj as UnaryRelation);
         }
 
-        public bool Equals(BinaryRelation rel)
+        public bool Equals(UnaryRelation rel)
         {
             if (ReferenceEquals(rel, null))
             {
@@ -31,21 +31,19 @@ namespace ObjectConditions
             if (GetType() != rel.GetType())
                 return false;
 
-            return Equals(rel.Left, Left)
-                && rel.Operator == Operator
-                && Equals(rel.Right, Right);
+            return Equals(rel.Expression, Expression)
+                && rel.Operator == Operator;
         }
 
         public override int GetHashCode()
         {
             var hash = 37;
-            hash = hash * 29 + (Left?.GetHashCode() ?? 0);
+            hash = hash * 29 + (Expression?.GetHashCode() ?? 0);
             hash = hash * 29 + (int)Operator;
-            hash = hash * 29 + (Right?.GetHashCode() ?? 0);
             return hash;
         }
 
-        public static bool operator ==(BinaryRelation lhs, BinaryRelation rhs)
+        public static bool operator ==(UnaryRelation lhs, UnaryRelation rhs)
         {
             if (ReferenceEquals(lhs, null))
             {
@@ -60,11 +58,9 @@ namespace ObjectConditions
             return lhs.Equals(rhs);
         }
 
-        public static bool operator !=(BinaryRelation lhs, BinaryRelation rhs)
+        public static bool operator !=(UnaryRelation lhs, UnaryRelation rhs)
         {
             return !(lhs == rhs);
         }
-
-        public List<IExpression> Children => new List<IExpression>() { Left, Right };
     }
 }

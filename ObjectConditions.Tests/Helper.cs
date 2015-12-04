@@ -135,9 +135,19 @@ namespace ObjectConditions.Tests
             {
                 return new TypedObject()
                 {
-                    IsNegated = GetRandomBoolean(),
                     Name = GetRandomString(),
                     ObjectType = GetRandomString()
+                };
+            }
+            if (type == typeof(UnaryRelation))
+            {
+                var newType =
+                    depth >= maxDepth ? GetRandomAstType(typeof(ITerminalExpression)) : GetRandomAstType(typeof(IExpression));
+
+                return new UnaryRelation()
+                {
+                    Expression = GetRandomObject(newType, depth + 1, maxDepth),
+                    Operator = GetRandomEnumValue<UnaryOperators>()
                 };
             }
             if (type == typeof(BinaryRelation))
@@ -148,7 +158,6 @@ namespace ObjectConditions.Tests
 
                 return new BinaryRelation()
                 {
-                    IsNegated = GetRandomBoolean(),
                     Left = GetRandomObject(typeLeft, depth + 1, maxDepth),
                     Operator = GetRandomEnumValue<BinaryOperators>(),
                     Right = GetRandomObject(typeRight, depth + 1, maxDepth)
@@ -172,12 +181,6 @@ namespace ObjectConditions.Tests
             {
                 var objvalue = obj as ObjectValue;
 
-                if (objvalue.IsNegated)
-                {
-                    result.Append('!');
-                    result.Append(GetRandomCommentOrWhitespace());
-                }
-
                 if (par)
                 {
                     result.Append('(');
@@ -198,12 +201,6 @@ namespace ObjectConditions.Tests
             {
                 var typedobj = obj as TypedObject;
 
-                if (typedobj.IsNegated)
-                {
-                    result.Append('!');
-                    result.Append(GetRandomCommentOrWhitespace());
-                }
-
                 if (par)
                 {
                     result.Append('(');
@@ -211,6 +208,63 @@ namespace ObjectConditions.Tests
                 }
 
                 result.AppendFormat("{0}::{1}", typedobj.ObjectType, typedobj.Name);
+
+                if (par)
+                {
+                    result.Append(GetRandomCommentOrWhitespace());
+                    result.Append(')');
+                }
+
+                return result.ToString();
+            }
+            if (obj.GetType() == typeof(UnaryOperators))
+            {
+                var op = (UnaryOperators)obj;
+                switch (op)
+                {
+                    case UnaryOperators.None:
+                        throw new Exception("UnaryOperators.None is provided.");
+                    case UnaryOperators.Negation:
+                        return "!";
+                    case UnaryOperators.Exist:
+                        return "Exist";
+                    case UnaryOperators.NotExist:
+                        return "NotExist";
+                    default:
+                        throw new Exception(String.Format("Unknown operator {0}", op));
+                }
+            }
+            if (obj.GetType() == typeof(UnaryRelation))
+            {
+                var rel = obj as UnaryRelation;
+
+                var terminal = rel.GetType().IsInstanceOfType(typeof(ITerminalExpression));
+
+                if (par)
+                {
+                    result.Append('(');
+                    result.Append(GetRandomCommentOrWhitespace());
+                }
+
+                result.Append(GetRandomCommentOrWhitespace());
+                result.Append(ExpressionToString(rel.Operator));
+
+                if (!terminal)
+                {
+                    result.Append('(');
+                    result.Append(GetRandomCommentOrWhitespace());
+                }
+
+                result.Append(" ");
+                result.Append(ExpressionToString(rel.Expression));
+
+                if (!terminal)
+                {
+                    result.Append(GetRandomCommentOrWhitespace());
+                    result.Append(')');
+                }
+
+                result.Append(GetRandomCommentOrWhitespace());
 
                 if (par)
                 {
@@ -253,13 +307,7 @@ namespace ObjectConditions.Tests
             {
                 var rel = obj as BinaryRelation;
 
-                if (rel.IsNegated)
-                {
-                    result.Append('!');
-                    result.Append(GetRandomCommentOrWhitespace());
-                }
-
-                if (par || rel.IsNegated)
+                if (par)
                 {
                     result.Append('(');
                     result.Append(GetRandomCommentOrWhitespace());
@@ -271,7 +319,7 @@ namespace ObjectConditions.Tests
                 result.Append(GetRandomCommentOrWhitespace());
                 result.Append(ExpressionToString(rel.Right));
 
-                if (par || rel.IsNegated)
+                if (par)
                 {
                     result.Append(GetRandomCommentOrWhitespace());
                     result.Append(')');
