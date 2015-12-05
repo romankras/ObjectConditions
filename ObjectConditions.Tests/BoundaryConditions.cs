@@ -47,7 +47,7 @@ namespace ObjectConditions.Tests
         }
 
         [Test]
-        public void OrdinaryBinaryRelationTest()
+        public void BinaryRelationTest()
         {
             const string str = "( Yga9SELk < MDJoNveF::XtuJduTe)";
 
@@ -93,42 +93,7 @@ namespace ObjectConditions.Tests
         }
 
         [Test]
-        public void NestingOrderTest()
-        {
-            const string str = "(GeeNBdZD <= !YkNnEypc::SfE3OcCH And yVcxvXwH)";
-
-            var ast = new BinaryRelation()
-            {
-                Left = new ObjectValue()
-                {
-                    Value = "GeeNBdZD"
-                },
-                Operator = BinaryOperators.LessOrEqual,
-                Right = new BinaryRelation()
-                {
-                    Left = new UnaryRelation()
-                    {
-                        Expression = new TypedObject()
-                        {
-                            Name = "SfE3OcCH",
-                            ObjectType = "YkNnEypc"
-                        },
-                        Operator = UnaryOperators.Negation
-                    },
-                    Operator = BinaryOperators.Conjunction,
-                    Right = new ObjectValue()
-                    {
-                        Value = "yVcxvXwH"
-                    }
-                }
-            };
-
-            var parsed = LanguageGrammar.ParseExpression.Parse(str);
-            Assert.AreEqual(ast, parsed);
-        }
-
-        [Test]
-        public void DoubleNegationTest()
+        public void UnaryRelationsNestingTest()
         {
             const string str = "!!VFcsfyxF::V2dnlJGW < 1yjlGOQR";
 
@@ -237,7 +202,7 @@ namespace ObjectConditions.Tests
         }
 
         [Test]
-        public void BinaryRelationWithUnaryRelation()
+        public void BinaryRelationWithUnaryRelationTest()
         {
             const string str = "w4oKP4rl::sHjPcCRy Or NotExist(mwrt5xDK)";
 
@@ -264,42 +229,7 @@ namespace ObjectConditions.Tests
         }
 
         [Test]
-        public void NestingOrderTest2()
-        {
-            const string str = "LzRukkRk >= Exist OnKWASDq < E3oIKzi8::85CzQIV2";
-
-            var ast = new BinaryRelation()
-            {
-                Left = new ObjectValue()
-                {
-                    Value = "LzRukkRk"
-                },
-                Operator = BinaryOperators.GreaterOrEqual,
-                Right = new BinaryRelation()
-                {
-                    Left = new UnaryRelation()
-                    {
-                        Expression = new ObjectValue()
-                        {
-                            Value = "OnKWASDq"
-                        },
-                        Operator = UnaryOperators.Exist,
-                    },
-                    Operator = BinaryOperators.LessThan,
-                    Right = new TypedObject()
-                    {
-                        ObjectType = "E3oIKzi8",
-                        Name = "85CzQIV2"
-                    }
-                }
-            };
-
-            var parsed = LanguageGrammar.ParseExpression.Parse(str);
-            Assert.AreEqual(ast, parsed);
-        }
-
-        [Test]
-        public void NestingOrderTest3()
+        public void BasicNestingOrderTest()
         {
             const string str = "xHlqT243::1bRn2sQA < ! NotExist VzN6P0Lb::zSm2eseU > ZesXQQU1 = Exist !(JXXPBsEv)";
 
