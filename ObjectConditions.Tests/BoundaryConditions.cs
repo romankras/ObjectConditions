@@ -283,5 +283,13 @@ namespace ObjectConditions.Tests
             var parsed = LanguageGrammar.ParseExpression.Parse(str);
             Assert.AreEqual(ast, parsed);
         }
+
+        [Test]
+        [ExpectedException(typeof(ParseException))]
+        public void EndOfInputTest()
+        {
+            const string str = "xHlqT243::1bRn2sQA < ! NotExist VzN6P0Lb::zSm2eseU > ZesXQQU1 = Exist !(JXXPBsEv)))";
+            LanguageGrammar.ParseExpression.Parse(str);
+        }
     }
 }
