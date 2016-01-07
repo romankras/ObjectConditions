@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="BinaryOperators.cs" />
     <Compile Include="BinaryRelation.cs" />
+    <Compile Include="Evaluator.cs" />
     <Compile Include="ExpressionTypes.cs" />
     <Compile Include="Term.cs" />
     <Compile Include="IExpression.cs" />
