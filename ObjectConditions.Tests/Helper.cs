@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
@@ -11,40 +12,58 @@ namespace ObjectConditions.Tests
     {
         private static readonly Random Random = new Random();
 
-        public static List<Type> GetAstObjectTypes(Type type)
+        private static readonly List<string> BuiltInTypes = 
+            new List<string>()
+            {
+                "String",
+                "Integer",
+                "Boolean"
+            };
+
+        private static readonly List<BinaryOperators> LogicalBinaryOperators = 
+            new List<BinaryOperators>()
+            {
+                BinaryOperators.Conjunction,
+                BinaryOperators.Disjunction,
+                BinaryOperators.Implication
+            };
+
+        private static readonly List<BinaryOperators> PropositionalBinaryOperators = 
+            new List<BinaryOperators>()
+            {
+                BinaryOperators.GreaterOrEqual,
+                BinaryOperators.Equality,
+                BinaryOperators.GreaterThan,
+                BinaryOperators.Inequality,
+                BinaryOperators.LessOrEqual,
+                BinaryOperators.LessThan            
+            };
+
+        private static readonly List<UnaryOperators> PropositionalUnaryOperators = 
+            new List<UnaryOperators>()
+            {
+                UnaryOperators.Exist,
+                UnaryOperators.NotExist
+            };
+
+        private static readonly List<UnaryOperators> LogicalUnaryOperators = 
+            new List<UnaryOperators>()
+            {
+                UnaryOperators.Negation
+            };
+
+        private static readonly List<string> NonTerminals = 
+            new List<string>()
+            {
+                "UnaryRelation",
+                "BinaryRelation"
+            };
+
+        public static T GetRandomListItem<T>(List<T> list)
         {
-            if (type == null)
-            {
-                throw new ArgumentNullException(nameof(type), "Type cannot be null");
-            }
-
-            if (!type.IsInterface)
-            {
-                throw new ArgumentOutOfRangeException(nameof(type), "Type should be an interface.");
-            }
-
-            return AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(s => s.GetTypes())
-                .Where(p => type.IsAssignableFrom(p) && !p.IsInterface)
-                .ToList();
-        }
-
-        public static Type GetRandomAstType(Type type)
-        {
-            if (type == null)
-            {
-                throw new ArgumentNullException(nameof(type), "Type cannot be null");
-            }
-
-            if (!type.IsInterface)
-            {
-                throw new ArgumentOutOfRangeException(nameof(type), "Type should be an interface.");
-            }
-
-            var types = GetAstObjectTypes(type);
-            var index = Random.Next(types.Count);
-
-            return types[index];
+            return list
+                    .OrderBy(x => Guid.NewGuid())
+                    .FirstOrDefault();
         }
 
         public static bool GetRandomBoolean()
@@ -53,41 +72,52 @@ namespace ObjectConditions.Tests
             return val < 20;
         }
 
-        public static string GetRandomString()
+        public static string GetRandomString(bool allowEmpty)
         {
             const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var length = GetRandomInt(8, false);
 
-            return new string(Enumerable.Repeat(chars, 8)
+            if (!allowEmpty && length == 0)
+                length++;
+
+            return new string(Enumerable.Repeat(chars, length)
                 .Select(s => s[Random.Next(s.Length)])
                 .ToArray());
         }
 
-        public static int GetRandomInt(int max)
+        public static int GetRandomInt(int max, bool allowNegative)
         {
-            return Random.Next(0, max);
+            var val = Random.Next(0, max);
+
+            if (GetRandomBoolean() && allowNegative)
+            {
+                val *= -1;
+            }
+
+            return val;
         }
 
         public static string GetRandomCommentOrWhitespace()
         {
-            var blocks = GetRandomInt(5);
+            var blocks = GetRandomInt(5, false);
             var result = new StringBuilder();
 
             for (var i = 0; i < blocks; i++)
             {
-                var type = GetRandomInt(3);
+                var type = GetRandomInt(3, false);
                 switch (type)
                 {
                     case 0:
-                        result.Append("          ".Substring(0, GetRandomInt(4)));
+                        result.Append("          ".Substring(0, GetRandomInt(4, false)));
                         break;
                     case 1:
-                        result.Append("\n\n\n\n\n\n\n\n\n".Substring(0, GetRandomInt(4)));
+                        result.Append("\n\n\n\n\n\n\n\n\n".Substring(0, GetRandomInt(4, false)));
                         break;
                     case 2:
-                        result.Append(String.Format("//{0}\n", GetRandomString()));
+                        result.Append(String.Format("//{0}\n", GetRandomString(true)));
                         break;
                     case 3:
-                        result.Append(String.Format("/*{0}\n{1}*/", GetRandomString(), GetRandomString()));
+                        result.Append(String.Format("/*{0}\n{1}*/", GetRandomString(true), GetRandomString(true)));
                         break;
                 }
             }
@@ -107,11 +137,11 @@ namespace ObjectConditions.Tests
             return (T)values.GetValue(Random.Next(1, values.Length));
         }
 
-        public static IExpression GetRandomObject(Type type, int depth, int maxDepth)
+        public static IExpression GetRandomObject(string type, int depth, int maxDepth)
         {
-            if (type == null)
+            if (string.IsNullOrEmpty(type))
             {
-                throw new ArgumentNullException(nameof(type), "type cannot be null");
+                throw new ArgumentOutOfRangeException(nameof(type), "type cannot be null or empty");
             }
 
             if (depth < 0)
@@ -124,62 +154,91 @@ namespace ObjectConditions.Tests
                 throw new ArgumentOutOfRangeException(nameof(maxDepth), "maxDepth cannot be negative.");
             }
 
-            if (type == typeof(ObjectValue))
+            switch (type)
             {
-                return new ObjectValue()
+                case "Term":
                 {
-                    Value = GetRandomString()
-                };
-            }
-            if (type == typeof(TypedObject))
-            {
-                return new TypedObject()
+                    return GetRandomObject(GetRandomTerminalType(), depth, maxDepth);
+                }
+                case "Boolean":
                 {
-                    Name = GetRandomString(),
-                    ObjectType = GetRandomString()
-                };
-            }
-            if (type == typeof(UnaryRelation))
-            {
-                var newType =
-                    depth >= maxDepth ? GetRandomAstType(typeof(ITerminalExpression)) : GetRandomAstType(typeof(IExpression));
+                    return new Term()
+                    {
+                        Value = GetRandomBoolean().ToString(),
+                        ExpressionType = type
+                    };
+                }
+                case "Integer":
+                {
+                    return new Term()
+                    {
+                        Value = GetRandomInt(1000, true).ToString(),
+                        ExpressionType = type
+                    };
+                }
+                case "String":
+                {
+                    return new Term()
+                    {
+                        Value = GetRandomString(true),
+                        ExpressionType = type
+                    };
+                }
+                case "UnaryRelation":
+                {
+                    var newType =
+                        depth >= maxDepth ? GetRandomTerminalType() : GetRandomListItem<string>(NonTerminals);
 
-                return new UnaryRelation()
+                    return new UnaryRelation()
+                    {
+                            Expression = GetRandomObject(newType, depth + 1, maxDepth),
+                            Operator = GetRandomEnumValue<UnaryOperators>(),
+                            ExpressionType = "UnaryRelation"
+                    };
+                }
+                case "BinaryRelation":
                 {
-                    Expression = GetRandomObject(newType, depth + 1, maxDepth),
-                    Operator = GetRandomEnumValue<UnaryOperators>()
-                };
-            }
-            if (type == typeof(BinaryRelation))
-            {
-                var typeLeft = GetRandomAstType(typeof(ITerminalExpression));
-                var typeRight = 
-                    depth >= maxDepth ? GetRandomAstType(typeof(ITerminalExpression)) : GetRandomAstType(typeof(IExpression));
+                    var typeLeft = GetRandomTerminalType();
+                    var typeRight =
+                        depth >= maxDepth ? GetRandomTerminalType() : GetRandomListItem<string>(NonTerminals);
 
-                return new BinaryRelation()
+                    return new BinaryRelation()
+                    {
+                        Left = GetRandomObject(typeLeft, depth + 1, maxDepth),
+                        Operator = GetRandomEnumValue<BinaryOperators>(),
+                        Right = GetRandomObject(typeRight, depth + 1, maxDepth),
+                        ExpressionType = "BinaryRelation"
+                    };
+                }
+                default:
                 {
-                    Left = GetRandomObject(typeLeft, depth + 1, maxDepth),
-                    Operator = GetRandomEnumValue<BinaryOperators>(),
-                    Right = GetRandomObject(typeRight, depth + 1, maxDepth)
-                };
+                    return new Term()
+                    {
+                        Value = GetRandomString(false),
+                        ExpressionType = type
+                    };
+                }
             }
-
-            throw new ArgumentOutOfRangeException(nameof(type), String.Format("Unknown object type {0}.", type));
         }
 
-        public static string ExpressionToString(object obj)
+        public static string GetRandomTerminalType()
+        {
+            return GetRandomBoolean() ? GetRandomListItem<string>(BuiltInTypes) : GetRandomString(false);
+        }
+
+        public static string ExpressionToString(object obj, bool useParenthesis)
         {
             if (obj == null)
             {
                 throw new ArgumentNullException(nameof(obj));
             }
 
-            var par = GetRandomBoolean();
+            var par = useParenthesis && GetRandomBoolean();
             var result = new StringBuilder();
 
-            if (obj.GetType() == typeof(ObjectValue))
+            if (obj.GetType() == typeof(Term))
             {
-                var objvalue = obj as ObjectValue;
+                var typedobj = obj as Term;
 
                 if (par)
                 {
@@ -187,27 +246,21 @@ namespace ObjectConditions.Tests
                     result.Append(GetRandomCommentOrWhitespace());
                 }
 
-                result.AppendFormat("{0}", objvalue.Value);
-
-                if (par)
+                if (!BuiltInTypes.Contains(typedobj.ExpressionType))
                 {
-                    result.Append(GetRandomCommentOrWhitespace());
-                    result.Append(')');
+                    result.AppendFormat("{0}::{1}", typedobj.ExpressionType, typedobj.Value);
                 }
-
-                return result.ToString();
-            }
-            if (obj.GetType() == typeof(TypedObject))
-            {
-                var typedobj = obj as TypedObject;
-
-                if (par)
+                else
                 {
-                    result.Append('(');
-                    result.Append(GetRandomCommentOrWhitespace());
+                    if (typedobj.ExpressionType == "String")
+                    {
+                        result.AppendFormat("\"{0}\"", typedobj.Value);
+                    }
+                    else
+                    {
+                        result.Append(typedobj.Value);
+                    }
                 }
-
-                result.AppendFormat("{0}::{1}", typedobj.ObjectType, typedobj.Name);
 
                 if (par)
                 {
@@ -238,7 +291,7 @@ namespace ObjectConditions.Tests
             {
                 var rel = obj as UnaryRelation;
 
-                var terminal = rel.GetType().IsInstanceOfType(typeof(ITerminalExpression));
+                var nonTerminal = NonTerminals.Contains(rel.Expression.ExpressionType);
 
                 if (par)
                 {
@@ -246,25 +299,21 @@ namespace ObjectConditions.Tests
                     result.Append(GetRandomCommentOrWhitespace());
                 }
 
-                result.Append(GetRandomCommentOrWhitespace());
-                result.Append(ExpressionToString(rel.Operator));
+                result.Append(ExpressionToString(rel.Operator, true));
 
-                if (!terminal)
+                if (nonTerminal)
                 {
                     result.Append('(');
                     result.Append(GetRandomCommentOrWhitespace());
                 }
 
-                result.Append(" ");
-                result.Append(ExpressionToString(rel.Expression));
+                result.Append(ExpressionToString(rel.Expression, true));
 
-                if (!terminal)
+                if (nonTerminal)
                 {
                     result.Append(GetRandomCommentOrWhitespace());
                     result.Append(')');
                 }
-
-                result.Append(GetRandomCommentOrWhitespace());
 
                 if (par)
                 {
@@ -313,11 +362,11 @@ namespace ObjectConditions.Tests
                     result.Append(GetRandomCommentOrWhitespace());
                 }
 
-                result.Append(ExpressionToString(rel.Left));
+                result.Append(ExpressionToString(rel.Left, true));
                 result.Append(GetRandomCommentOrWhitespace());
-                result.Append(ExpressionToString(rel.Operator));
+                result.Append(ExpressionToString(rel.Operator, true));
                 result.Append(GetRandomCommentOrWhitespace());
-                result.Append(ExpressionToString(rel.Right));
+                result.Append(ExpressionToString(rel.Right, true));
 
                 if (par)
                 {
@@ -333,7 +382,7 @@ namespace ObjectConditions.Tests
 
         public static IExpression GetRandomAst(int maxDepth)
         {
-            return GetRandomObject(typeof(BinaryRelation), 0, maxDepth);
+            return GetRandomObject("BinaryRelation", 0, maxDepth);
         }
 
         public static IExpression ParseExtended(Parser<IExpression> parser, string input)
@@ -370,7 +419,7 @@ namespace ObjectConditions.Tests
             return ast
                     .Children
                     .SelectMany(GetFlatTree)
-                    .Concat(new List<IExpression>() { ast })
+                    .Concat(new [] { ast })
                     .ToList();
         }
     }

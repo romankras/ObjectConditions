@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Sprache;
 
 namespace ObjectConditions
@@ -7,13 +8,13 @@ namespace ObjectConditions
     {
         private static readonly CommentParser Comment = new CommentParser();
 
-        private static readonly Parser<IEnumerable<string>> WhitespacesOrComments =
+        public static readonly Parser<IEnumerable<string>> WhitespacesOrComments =
                 Parse.WhiteSpace.Many().Text()
                     .Or(Comment.AnyComment)
                     .Or(Parse.Char('\n').Many().Text())
                     .Many();
 
-        private static readonly Parser<BinaryOperators> BinaryOperator =
+        public static readonly Parser<BinaryOperators> BinaryOperator =
                 Parse.String("=>").Return(BinaryOperators.Implication)
                     .Or(Parse.String("And").Return(BinaryOperators.Conjunction))
                     .Or(Parse.String("Or").Return(BinaryOperators.Disjunction))
@@ -24,39 +25,70 @@ namespace ObjectConditions
                     .Or(Parse.String("<=").Return(BinaryOperators.LessOrEqual))
                     .Or(Parse.String("<").Return(BinaryOperators.LessThan));
 
-        private static readonly Parser<UnaryOperators> UnaryOperator =
+        public static readonly Parser<UnaryOperators> UnaryOperator =
                 Parse.Char('!').Return(UnaryOperators.Negation)
                     .Or(Parse.String("Exist").Return(UnaryOperators.Exist)
                     .Or(Parse.String("NotExist").Return(UnaryOperators.NotExist)));
 
-        private static readonly Parser<TypedObject> TypedObject =
-                from type in Parse.LetterOrDigit.Many().Text().Token()
-                from del in Parse.String("::").Once()
-                from name in Parse.LetterOrDigit.Many().Text().Token()
-                select new TypedObject()
+        public static readonly Parser<Term> StringConstant =
+                from open in Parse.Char('"').Once()
+                from str in Parse.LetterOrDigit.Many().Text()
+                from end in Parse.Char('"').Once()
+                select new Term()
                 {
-                    Name = name,
-                    ObjectType = type
+                    Value = str,
+                    ExpressionType = "String"
                 };
 
-        private static readonly Parser<ObjectValue> ObjectValue =
-                from val in Parse.LetterOrDigit.Many().Text().Token()
-                select new ObjectValue()
+        public static readonly Parser<Term> IntegerConstant =
+                from op in Parse.Optional(Parse.Char('-').Token())
+                from str in Parse.Decimal
+                select new Term()
                 {
-                    Value = val
+                    Value = op.IsDefined ? String.Format("-{0}", str) : str,
+                    ExpressionType = "Integer"
                 };
 
-        private static readonly Parser<UnaryRelation> UnaryRelation =
+        public static readonly Parser<Term> BooleanConstant =
+                from str in Parse.String("true")
+                    .Or(Parse.String("True"))
+                    .Or(Parse.String("false"))
+                    .Or(Parse.String("False"))
+                    .Text()
+                select new Term()
+                {
+                    Value = str,
+                    ExpressionType = "Boolean"
+                };
+
+        public static readonly Parser<Term> TypedObject =
+                from type in Parse.LetterOrDigit.AtLeastOnce().Text()
+                from del in Parse.String("::")
+                from name in Parse.LetterOrDigit.AtLeastOnce().Text()
+                select new Term()
+                {
+                    Value = name,
+                    ExpressionType = type
+                };
+
+        public static readonly Parser<Term> Term =
+                    TypedObject
+                    .Or(BooleanConstant)
+                    .Or(IntegerConstant)
+                    .Or(StringConstant);
+
+        public static readonly Parser<UnaryRelation> UnaryRelation =
                 from op in UnaryOperator
                 from ws in WhitespacesOrComments
                 from exp in Parse.Ref(() => GeneralExpression)
                 select new UnaryRelation()
                 {
                     Expression = exp,
-                    Operator = op
+                    Operator = op,
+                    ExpressionType = "UnaryRelation"
                 };
 
-        private static readonly Parser<BinaryRelation> BinaryRelation =
+        public static readonly Parser<BinaryRelation> BinaryRelation =
                 from left in Parse.Ref(() => GeneralExpression)
                 from ws1 in WhitespacesOrComments
                 from op in BinaryOperator
@@ -67,10 +99,11 @@ namespace ObjectConditions
                 {
                     Left = left,
                     Operator = op,
-                    Right = right
+                    Right = right,
+                    ExpressionType = "BinaryRelation"
                 };
 
-        private static readonly Parser<IExpression> ParenthesisExpression =
+        public static readonly Parser<IExpression> ParenthesisExpression =
                 from open in Parse.Char('(').Once()
                 from ws1 in WhitespacesOrComments
                 from expr in BinaryRelation
@@ -79,11 +112,10 @@ namespace ObjectConditions
                 from close in Parse.Char(')').Once()
                 select expr;
 
-        private static readonly Parser<IExpression> GeneralExpression =
-                ParenthesisExpression
-                .Or(UnaryRelation)
-                .Or(TypedObject)
-                .Or(ObjectValue);
+        public static readonly Parser<IExpression> GeneralExpression =
+                UnaryRelation
+                .Or<IExpression>(Term)
+                .Or<IExpression>(ParenthesisExpression);
 
         public static Parser<IExpression> ParseExpression =
                 from ws1 in WhitespacesOrComments

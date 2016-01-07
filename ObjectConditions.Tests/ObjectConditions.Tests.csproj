@@ -55,6 +55,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="FuzzTest.cs" />
+    <Compile Include="HappyPath.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BoundaryConditions.cs" />

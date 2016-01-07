@@ -5,6 +5,16 @@ namespace ObjectConditions
 {
     public class BinaryRelation: IExpression, IEquatable<BinaryRelation>
     {
+        public IEnumerable<IExpression> Children
+        {
+            get
+            {
+                return new[] { Left, Right };
+            }
+        }
+
+        public string ExpressionType { get; set; }
+
         public IExpression Left { get; set; }
 
         public BinaryOperators Operator { get; set; }
@@ -33,15 +43,35 @@ namespace ObjectConditions
 
             return Equals(rel.Left, Left)
                 && rel.Operator == Operator
-                && Equals(rel.Right, Right);
+                && Equals(rel.Right, Right)
+                && rel.ExpressionType == ExpressionType;
         }
 
         public override int GetHashCode()
         {
             var hash = 37;
-            hash = hash * 29 + (Left?.GetHashCode() ?? 0);
+            hash = hash * 29 + ExpressionType.GetHashCode();
+
+            if (Left != null)
+            {
+                hash = hash * 29 + Left.GetHashCode();
+            }
+            else
+            {
+                hash = hash * 29;
+            }
+
             hash = hash * 29 + (int)Operator;
-            hash = hash * 29 + (Right?.GetHashCode() ?? 0);
+
+            if (Right != null)
+            {
+                hash = hash * 29 + Right.GetHashCode();
+            }
+            else
+            {
+                hash = hash * 29;
+            }
+
             return hash;
         }
 
@@ -64,7 +94,5 @@ namespace ObjectConditions
         {
             return !(lhs == rhs);
         }
-
-        public List<IExpression> Children => new List<IExpression>() { Left, Right };
     }
 }

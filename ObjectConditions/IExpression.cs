@@ -4,6 +4,8 @@ namespace ObjectConditions
 {
     public interface IExpression
     {
-        List<IExpression> Children { get; }
+        IEnumerable<IExpression> Children { get; }
+
+        string ExpressionType { get; set; }
     }
 }

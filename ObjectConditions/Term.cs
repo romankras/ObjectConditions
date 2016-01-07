@@ -1,18 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ObjectConditions
 {
-    public class ObjectValue: IExpression, ITerminalExpression, IEquatable<ObjectValue>
+    public class Term: IExpression, IEquatable<Term>
     {
+        public IEnumerable<IExpression> Children
+        {
+            get
+            {
+                return Enumerable.Empty<IExpression>();
+            }
+        }
+
+        public string ExpressionType { get; set; }
+
         public string Value { get; set; }
 
         public override bool Equals(object obj)
         {
-            return Equals(obj as ObjectValue);
+            return Equals(obj as Term);
         }
 
-        public bool Equals(ObjectValue val)
+        public bool Equals(Term val)
         {
             if (ReferenceEquals(val, null))
             {
@@ -27,17 +38,28 @@ namespace ObjectConditions
             if (GetType() != val.GetType())
                 return false;
 
-            return val.Value == Value;
+            return val.Value == Value
+                && val.ExpressionType == ExpressionType;
         }
 
         public override int GetHashCode()
         {
             var hash = 37;
-            hash = hash * 29 + (Value?.GetHashCode() ?? 0);
+            hash = hash * 29 + ExpressionType.GetHashCode();
+
+            if (Value != null)
+            {
+                hash = hash * 29 + Value.GetHashCode();
+            }
+            else
+            {
+                hash = hash * 29;
+            }
+
             return hash;
         }
 
-        public static bool operator ==(ObjectValue lhs, ObjectValue rhs)
+        public static bool operator ==(Term lhs, Term rhs)
         {
             if (ReferenceEquals(lhs, null))
             {
@@ -52,11 +74,9 @@ namespace ObjectConditions
             return lhs.Equals(rhs);
         }
 
-        public static bool operator !=(ObjectValue lhs, ObjectValue rhs)
+        public static bool operator !=(Term lhs, Term rhs)
         {
             return !(lhs == rhs);
         }
-
-        public List<IExpression> Children => new List<IExpression>();
     }
 }
