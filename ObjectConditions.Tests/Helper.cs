@@ -12,7 +12,7 @@ namespace ObjectConditions.Tests
     {
         private static readonly Random Random = new Random();
 
-        private static readonly List<ExpressionTypes> Terminals = 
+        public static readonly List<ExpressionTypes> Terminals = 
             new List<ExpressionTypes>()
             {
                 ExpressionTypes.String,
@@ -21,7 +21,7 @@ namespace ObjectConditions.Tests
                 ExpressionTypes.SystemObject
             };
 
-        private static readonly List<ExpressionTypes> NonTerminals = 
+        public static readonly List<ExpressionTypes> NonTerminals =
             new List<ExpressionTypes>()
             {
                 ExpressionTypes.UnaryRelation,
@@ -106,7 +106,7 @@ namespace ObjectConditions.Tests
             return (T)values.GetValue(Random.Next(1, values.Length));
         }
 
-        public static IExpression GetRandomObject(ExpressionTypes type, int depth, int maxDepth)
+        public static IExpression GetRandomObject(ExpressionTypes type, int depth, int maxDepth, bool calculateTypes)
         {
 
             if (depth < 0)
@@ -123,7 +123,7 @@ namespace ObjectConditions.Tests
             {
                 case ExpressionTypes.Term:
                 {
-                    return GetRandomObject(GetRandomListItem<ExpressionTypes>(Terminals), depth, maxDepth);
+                    return GetRandomObject(GetRandomListItem<ExpressionTypes>(Terminals), depth, maxDepth, calculateTypes);
                 }
                 case ExpressionTypes.Boolean:
                 {
@@ -162,25 +162,39 @@ namespace ObjectConditions.Tests
                 {
                     var newType =
                         depth >= maxDepth ? GetRandomListItem<ExpressionTypes>(Terminals) : GetRandomListItem<ExpressionTypes>(NonTerminals);
-
+                    
                     return new UnaryRelation()
                     {
-                            Expression = GetRandomObject(newType, depth + 1, maxDepth),
-                            Operator = GetRandomEnumValue<UnaryOperators>(),
+                            Expression = GetRandomObject(newType, depth + 1, maxDepth, calculateTypes),
+                            Operator = calculateTypes ? GetRandomListItem<UnaryOperators>(Evaluator.OperatorsAndTypesInUnaryRelation[newType]) : GetRandomEnumValue<UnaryOperators>(),
                             ExpressionType = ExpressionTypes.UnaryRelation
                     };
                 }
                 case ExpressionTypes.BinaryRelation:
                 {
-                    var typeLeft = GetRandomListItem<ExpressionTypes>(Terminals);
-                    var typeRight =
-                        depth >= maxDepth ? GetRandomListItem<ExpressionTypes>(Terminals) : GetRandomListItem<ExpressionTypes>(NonTerminals);
+                    var typeLeft = calculateTypes ? GetRandomListItem<ExpressionTypes>(new List<ExpressionTypes>() { ExpressionTypes.Boolean, ExpressionTypes.SystemObject }) : GetRandomListItem<ExpressionTypes>(Terminals);
+                    ExpressionTypes typeRight;
+                    BinaryOperators op;
+                    
+                    if (calculateTypes)
+                    {
+                        typeRight =
+                            GetRandomListItem<ExpressionTypes>(Evaluator.TypesInBinaryRelation[typeLeft]);
+
+                        op = GetRandomListItem<BinaryOperators>(Evaluator.OperatorsAndTypesInBinaryRelation[typeRight].Concat(Evaluator.OperatorsAndTypesInBinaryRelation[typeLeft]).Distinct().ToList());
+                    }
+                    else
+                    {
+                        typeRight =
+                            depth >= maxDepth ? GetRandomListItem<ExpressionTypes>(Terminals) : GetRandomListItem<ExpressionTypes>(NonTerminals);
+                        op = GetRandomEnumValue<BinaryOperators>();
+                    }
 
                     return new BinaryRelation()
                     {
-                        Left = GetRandomObject(typeLeft, depth + 1, maxDepth),
-                        Operator = GetRandomEnumValue<BinaryOperators>(),
-                        Right = GetRandomObject(typeRight, depth + 1, maxDepth),
+                        Left = GetRandomObject(typeLeft, depth + 1, maxDepth, calculateTypes),
+                        Operator = calculateTypes ? op : GetRandomEnumValue<BinaryOperators>(),
+                        Right = GetRandomObject(typeRight, depth + 1, maxDepth, calculateTypes),
                         ExpressionType = ExpressionTypes.BinaryRelation
                     };
                 }
@@ -349,9 +363,9 @@ namespace ObjectConditions.Tests
             throw new ArgumentOutOfRangeException(nameof(obj), String.Format("Unknown object type {0}.", obj.GetType()));
         }
 
-        public static IExpression GetRandomAst(int maxDepth)
+        public static IExpression GetRandomAst(int maxDepth, bool calculateTypes)
         {
-            return GetRandomObject(ExpressionTypes.BinaryRelation, 0, maxDepth);
+            return GetRandomObject(ExpressionTypes.BinaryRelation, 0, maxDepth, calculateTypes);
         }
 
         public static IExpression ParseExtended(Parser<IExpression> parser, string input)
@@ -363,6 +377,18 @@ namespace ObjectConditions.Tests
             catch (ParseException ex)
             {
                 throw new ParseException(String.Format("Exception: {0} ; Input {1}", ex.Message, input), ex);
+            }
+        }
+
+        public static void CheckTypesExtended(IExpression expr, string input)
+        {
+            try
+            {
+                Evaluator.CheckTypes(expr);
+            }
+            catch (TypeCheckerException ex)
+            {
+                throw new TypeCheckerException(String.Format("Exception: {0} ; Input {1}", ex.Message, input), ex, expr);
             }
         }
 

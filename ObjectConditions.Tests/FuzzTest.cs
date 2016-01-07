@@ -7,11 +7,11 @@ namespace ObjectConditions.Tests
     public class FuzzTest
     {
         [Test]
-        public void MainTest()
+        public void UntypedExpressionsTest()
         {
             for (var i = 0; i < 1000; i++)
             {
-                var ast = Helper.GetRandomAst(10);
+                var ast = Helper.GetRandomAst(10, false);
                 var str = String.Format(
                     "{0}{1}{2}",
                     Helper.GetRandomCommentOrWhitespace(),
@@ -23,11 +23,28 @@ namespace ObjectConditions.Tests
         }
 
         [Test]
+        public void TypedExpressionsTest()
+        {
+            for (var i = 0; i < 1000; i++)
+            {
+                var ast = Helper.GetRandomAst(10, true);
+                var str = String.Format(
+                    "{0}{1}{2}",
+                    Helper.GetRandomCommentOrWhitespace(),
+                    Helper.ExpressionToString(ast, true),
+                    Helper.GetRandomCommentOrWhitespace());
+                var parsed = Helper.ParseExtended(LanguageGrammar.ParseExpression, str);
+                Helper.AreEqualExtended(ast, parsed, str);
+                Helper.CheckTypesExtended(parsed, str);
+            }
+        }
+
+        [Test]
         public void StringConstantTest()
         {
             for (var i = 0; i < 1000; i++)
             {
-                var ast = Helper.GetRandomObject(ExpressionTypes.String, 0, 0);
+                var ast = Helper.GetRandomObject(ExpressionTypes.String, 0, 0, false);
                 var str = Helper.ExpressionToString(ast, false);
                 var parsed = Helper.ParseExtended(LanguageGrammar.StringConstant, str);
                 Helper.AreEqualExtended(ast, parsed, str);
@@ -39,7 +56,7 @@ namespace ObjectConditions.Tests
         {
             for (var i = 0; i < 1000; i++)
             {
-                var ast = Helper.GetRandomObject(ExpressionTypes.Boolean, 0, 0);
+                var ast = Helper.GetRandomObject(ExpressionTypes.Boolean, 0, 0, false);
                 var str = Helper.ExpressionToString(ast, false);
                 var parsed = Helper.ParseExtended(LanguageGrammar.BooleanConstant, str);
                 Helper.AreEqualExtended(ast, parsed, str);
@@ -51,7 +68,7 @@ namespace ObjectConditions.Tests
         {
             for (var i = 0; i < 1000; i++)
             {
-                var ast = Helper.GetRandomObject(ExpressionTypes.Integer, 0, 0);
+                var ast = Helper.GetRandomObject(ExpressionTypes.Integer, 0, 0, false);
                 var str = Helper.ExpressionToString(ast, false);
                 var parsed = Helper.ParseExtended(LanguageGrammar.IntegerConstant, str);
                 Helper.AreEqualExtended(ast, parsed, str);
@@ -63,7 +80,7 @@ namespace ObjectConditions.Tests
         {
             for (var i = 0; i < 1000; i++)
             {
-                var ast = Helper.GetRandomObject(ExpressionTypes.SystemObject, 0, 0);
+                var ast = Helper.GetRandomObject(ExpressionTypes.SystemObject, 0, 0, false);
                 var str = Helper.ExpressionToString(ast, false);
                 var parsed = Helper.ParseExtended(LanguageGrammar.SystemObject, str);
                 Helper.AreEqualExtended(ast, parsed, str);
@@ -75,7 +92,7 @@ namespace ObjectConditions.Tests
         {
             for (var i = 0; i < 1000; i++)
             {
-                var ast = Helper.GetRandomObject(ExpressionTypes.UnaryRelation, 0, 0);
+                var ast = Helper.GetRandomObject(ExpressionTypes.UnaryRelation, 0, 0, false);
                 var str = Helper.ExpressionToString(ast, false);
                 var parsed = Helper.ParseExtended(LanguageGrammar.UnaryRelation, str);
                 Helper.AreEqualExtended(ast, parsed, str);
@@ -87,7 +104,7 @@ namespace ObjectConditions.Tests
         {
             for (var i = 0; i < 1000; i++)
             {
-                var ast = Helper.GetRandomObject(ExpressionTypes.BinaryRelation, 0, 0);
+                var ast = Helper.GetRandomObject(ExpressionTypes.BinaryRelation, 0, 0, false);
                 var str = Helper.ExpressionToString(ast, false);
                 var parsed = Helper.ParseExtended(LanguageGrammar.BinaryRelation, str);
                 Helper.AreEqualExtended(ast, parsed, str);
@@ -99,7 +116,7 @@ namespace ObjectConditions.Tests
         {
             for (var i = 0; i < 1000; i++)
             {
-                var ast = Helper.GetRandomObject(ExpressionTypes.Term, 0, 0);
+                var ast = Helper.GetRandomObject(ExpressionTypes.Term, 0, 0, false);
                 var str = Helper.ExpressionToString(ast, false);
                 var parsed = Helper.ParseExtended(LanguageGrammar.Term, str);
                 Helper.AreEqualExtended(ast, parsed, str);

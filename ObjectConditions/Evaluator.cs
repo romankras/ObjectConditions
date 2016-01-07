@@ -29,6 +29,17 @@ namespace ObjectConditions
                 { ExpressionTypes.BinaryRelation, new List<BinaryOperators>() { BinaryOperators.Equality, BinaryOperators.Inequality, BinaryOperators.Conjunction, BinaryOperators.Disjunction, BinaryOperators.Implication }}
             };
 
+        public static readonly Dictionary<ExpressionTypes, List<ExpressionTypes>> TypesInBinaryRelation =
+            new Dictionary<ExpressionTypes, List<ExpressionTypes>>()
+            {
+                { ExpressionTypes.Integer, new List<ExpressionTypes>() { ExpressionTypes.SystemObject, ExpressionTypes.Integer } },
+                { ExpressionTypes.String, new List<ExpressionTypes>() { ExpressionTypes.SystemObject, ExpressionTypes.String } },
+                { ExpressionTypes.Boolean, new List<ExpressionTypes>() { ExpressionTypes.SystemObject, ExpressionTypes.BinaryRelation, ExpressionTypes.UnaryRelation } },
+                { ExpressionTypes.SystemObject, new List<ExpressionTypes>() { ExpressionTypes.Integer, ExpressionTypes.String, ExpressionTypes.SystemObject, ExpressionTypes.Boolean } },
+                { ExpressionTypes.UnaryRelation, new List<ExpressionTypes>() { ExpressionTypes.UnaryRelation, ExpressionTypes.BinaryRelation, ExpressionTypes.Boolean } },
+                { ExpressionTypes.BinaryRelation, new List<ExpressionTypes>() { ExpressionTypes.BinaryRelation, ExpressionTypes.UnaryRelation, ExpressionTypes.Boolean }}
+            };
+
         public static void CheckTypes(IExpression expr)
         {
             if (expr == null)
@@ -80,6 +91,13 @@ namespace ObjectConditions
                         }
 
                         throw new TypeCheckerException(errorMessage.ToString(), expr);
+                    }
+
+                    comply = TypesInBinaryRelation[rel.Left.ExpressionType].Contains(rel.Right.ExpressionType);
+
+                    if (!comply)
+                    {
+                        throw new TypeCheckerException(String.Format("Types {0} and {1} cannot be used together in binary relation", rel.Left.ExpressionType, rel.Right.ExpressionType), expr);
                     }
 
                     break;
