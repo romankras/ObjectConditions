@@ -162,7 +162,12 @@ namespace ObjectConditions.Tests
                 {
                     var newType =
                         depth >= maxDepth ? GetRandomListItem<ExpressionTypes>(Terminals) : GetRandomListItem<ExpressionTypes>(NonTerminals);
-                    
+
+                    if (calculateTypes && depth >= maxDepth)
+                    {
+                        newType = GetRandomListItem<ExpressionTypes>(new List<ExpressionTypes>() {ExpressionTypes.SystemObject, ExpressionTypes.BinaryRelation} );
+                    }
+
                     return new UnaryRelation()
                     {
                             Expression = GetRandomObject(newType, depth + 1, maxDepth, calculateTypes),
@@ -181,7 +186,7 @@ namespace ObjectConditions.Tests
                         typeRight =
                             GetRandomListItem<ExpressionTypes>(Evaluator.TypesInBinaryRelation[typeLeft]);
 
-                        op = GetRandomListItem<BinaryOperators>(Evaluator.OperatorsAndTypesInBinaryRelation[typeRight].Concat(Evaluator.OperatorsAndTypesInBinaryRelation[typeLeft]).Distinct().ToList());
+                        op = GetRandomListItem<BinaryOperators>(Evaluator.OperatorsAndTypesInBinaryRelation[typeRight].Intersect(Evaluator.OperatorsAndTypesInBinaryRelation[typeLeft]).ToList());
                     }
                     else
                     {
