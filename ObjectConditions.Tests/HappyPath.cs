@@ -13,7 +13,7 @@ namespace ObjectConditions.Tests
 
             var ast = new Term()
             {
-                ExpressionType = "String",
+                ExpressionType = ExpressionTypes.String,
                 Value = "somestring"
             };
 
@@ -28,7 +28,7 @@ namespace ObjectConditions.Tests
 
             var ast = new Term()
             {
-                ExpressionType = "Integer",
+                ExpressionType = ExpressionTypes.Integer,
                 Value = "123"
             };
 
@@ -43,7 +43,7 @@ namespace ObjectConditions.Tests
 
             var ast = new Term()
             {
-                ExpressionType = "Boolean",
+                ExpressionType = ExpressionTypes.Boolean,
                 Value = "true"
             };
 
@@ -54,7 +54,7 @@ namespace ObjectConditions.Tests
 
             ast = new Term()
             {
-                ExpressionType = "Boolean",
+                ExpressionType = ExpressionTypes.Boolean,
                 Value = "True"
             };
 
@@ -65,7 +65,7 @@ namespace ObjectConditions.Tests
 
             ast = new Term()
             {
-                ExpressionType = "Boolean",
+                ExpressionType = ExpressionTypes.Boolean,
                 Value = "false"
             };
 
@@ -76,7 +76,7 @@ namespace ObjectConditions.Tests
 
             ast = new Term()
             {
-                ExpressionType = "Boolean",
+                ExpressionType = ExpressionTypes.Boolean,
                 Value = "False"
             };
 
@@ -91,11 +91,12 @@ namespace ObjectConditions.Tests
 
             var ast = new Term()
             {
-                ExpressionType = "type",
+                ExpressionType = ExpressionTypes.SystemObject,
+                ObjectType = "type",
                 Value = "somestring"
             };
 
-            var parsed = LanguageGrammar.TypedObject.Parse(str);
+            var parsed = LanguageGrammar.SystemObject.Parse(str);
             Assert.AreEqual(ast, parsed);
         }
 
@@ -106,7 +107,8 @@ namespace ObjectConditions.Tests
 
             var ast = new Term()
             {
-                ExpressionType = "type",
+                ExpressionType = ExpressionTypes.SystemObject,
+                ObjectType = "type",
                 Value = "somestring"
             };
 
@@ -117,7 +119,7 @@ namespace ObjectConditions.Tests
 
             ast = new Term()
             {
-                ExpressionType = "Boolean",
+                ExpressionType = ExpressionTypes.Boolean,
                 Value = "True"
             };
 
@@ -128,7 +130,7 @@ namespace ObjectConditions.Tests
 
             ast = new Term()
             {
-                ExpressionType = "String",
+                ExpressionType = ExpressionTypes.String,
                 Value = "somestring"
             };
 
@@ -139,7 +141,7 @@ namespace ObjectConditions.Tests
 
             ast = new Term()
             {
-                ExpressionType = "Integer",
+                ExpressionType = ExpressionTypes.Integer,
                 Value = "123"
             };
 
@@ -156,10 +158,11 @@ namespace ObjectConditions.Tests
             {
                 Expression = new Term()
                 {
-                    ExpressionType = "type",
+                    ExpressionType = ExpressionTypes.SystemObject,
+                    ObjectType = "type",
                     Value = "somestring"
                 },
-                ExpressionType = "UnaryRelation",
+                ExpressionType = ExpressionTypes.UnaryRelation,
                 Operator = UnaryOperators.Negation
             };
 
@@ -176,14 +179,15 @@ namespace ObjectConditions.Tests
             {
                 Left = new Term()
                 {
-                    ExpressionType = "type",
+                    ExpressionType = ExpressionTypes.SystemObject,
+                    ObjectType = "type",
                     Value = "somestring"
                 },
-                ExpressionType = "BinaryRelation",
+                ExpressionType = ExpressionTypes.BinaryRelation,
                 Operator = BinaryOperators.Equality,
                 Right = new Term()
                 {
-                    ExpressionType = "Integer",
+                    ExpressionType = ExpressionTypes.Integer,
                     Value = "123"
                 }
             };

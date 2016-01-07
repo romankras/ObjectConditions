@@ -6,6 +6,6 @@ namespace ObjectConditions
     {
         IEnumerable<IExpression> Children { get; }
 
-        string ExpressionType { get; set; }
+        ExpressionTypes ExpressionType { get; set; }
     }
 }

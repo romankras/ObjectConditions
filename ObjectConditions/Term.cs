@@ -14,7 +14,9 @@ namespace ObjectConditions
             }
         }
 
-        public string ExpressionType { get; set; }
+        public ExpressionTypes ExpressionType { get; set; }
+
+        public string ObjectType { get; set; }
 
         public string Value { get; set; }
 
@@ -39,13 +41,23 @@ namespace ObjectConditions
                 return false;
 
             return val.Value == Value
-                && val.ExpressionType == ExpressionType;
+                && val.ExpressionType == ExpressionType
+                && val.ObjectType == ObjectType;
         }
 
         public override int GetHashCode()
         {
             var hash = 37;
-            hash = hash * 29 + ExpressionType.GetHashCode();
+            hash = hash * 29 + (int)ExpressionType;
+
+            if (ObjectType != null)
+            {
+                hash = hash * 29 + ObjectType.GetHashCode();
+            }
+            else
+            {
+                hash = hash * 29;
+            }
 
             if (Value != null)
             {

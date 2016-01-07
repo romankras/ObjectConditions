@@ -37,7 +37,7 @@ namespace ObjectConditions
                 select new Term()
                 {
                     Value = str,
-                    ExpressionType = "String"
+                    ExpressionType = ExpressionTypes.String
                 };
 
         public static readonly Parser<Term> IntegerConstant =
@@ -46,7 +46,7 @@ namespace ObjectConditions
                 select new Term()
                 {
                     Value = op.IsDefined ? String.Format("-{0}", str) : str,
-                    ExpressionType = "Integer"
+                    ExpressionType = ExpressionTypes.Integer
                 };
 
         public static readonly Parser<Term> BooleanConstant =
@@ -58,21 +58,22 @@ namespace ObjectConditions
                 select new Term()
                 {
                     Value = str,
-                    ExpressionType = "Boolean"
+                    ExpressionType = ExpressionTypes.Boolean
                 };
 
-        public static readonly Parser<Term> TypedObject =
+        public static readonly Parser<Term> SystemObject =
                 from type in Parse.LetterOrDigit.AtLeastOnce().Text()
                 from del in Parse.String("::")
                 from name in Parse.LetterOrDigit.AtLeastOnce().Text()
                 select new Term()
                 {
                     Value = name,
-                    ExpressionType = type
+                    ObjectType = type,
+                    ExpressionType = ExpressionTypes.SystemObject
                 };
 
         public static readonly Parser<Term> Term =
-                    TypedObject
+                    SystemObject
                     .Or(BooleanConstant)
                     .Or(IntegerConstant)
                     .Or(StringConstant);
@@ -85,7 +86,7 @@ namespace ObjectConditions
                 {
                     Expression = exp,
                     Operator = op,
-                    ExpressionType = "UnaryRelation"
+                    ExpressionType = ExpressionTypes.UnaryRelation
                 };
 
         public static readonly Parser<BinaryRelation> BinaryRelation =
@@ -100,7 +101,7 @@ namespace ObjectConditions
                     Left = left,
                     Operator = op,
                     Right = right,
-                    ExpressionType = "BinaryRelation"
+                    ExpressionType = ExpressionTypes.BinaryRelation
                 };
 
         public static readonly Parser<IExpression> ParenthesisExpression =

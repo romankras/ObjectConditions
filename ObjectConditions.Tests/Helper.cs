@@ -12,51 +12,20 @@ namespace ObjectConditions.Tests
     {
         private static readonly Random Random = new Random();
 
-        private static readonly List<string> BuiltInTypes = 
-            new List<string>()
+        private static readonly List<ExpressionTypes> Terminals = 
+            new List<ExpressionTypes>()
             {
-                "String",
-                "Integer",
-                "Boolean"
+                ExpressionTypes.String,
+                ExpressionTypes.Integer,
+                ExpressionTypes.Boolean,
+                ExpressionTypes.SystemObject
             };
 
-        private static readonly List<BinaryOperators> LogicalBinaryOperators = 
-            new List<BinaryOperators>()
+        private static readonly List<ExpressionTypes> NonTerminals = 
+            new List<ExpressionTypes>()
             {
-                BinaryOperators.Conjunction,
-                BinaryOperators.Disjunction,
-                BinaryOperators.Implication
-            };
-
-        private static readonly List<BinaryOperators> PropositionalBinaryOperators = 
-            new List<BinaryOperators>()
-            {
-                BinaryOperators.GreaterOrEqual,
-                BinaryOperators.Equality,
-                BinaryOperators.GreaterThan,
-                BinaryOperators.Inequality,
-                BinaryOperators.LessOrEqual,
-                BinaryOperators.LessThan            
-            };
-
-        private static readonly List<UnaryOperators> PropositionalUnaryOperators = 
-            new List<UnaryOperators>()
-            {
-                UnaryOperators.Exist,
-                UnaryOperators.NotExist
-            };
-
-        private static readonly List<UnaryOperators> LogicalUnaryOperators = 
-            new List<UnaryOperators>()
-            {
-                UnaryOperators.Negation
-            };
-
-        private static readonly List<string> NonTerminals = 
-            new List<string>()
-            {
-                "UnaryRelation",
-                "BinaryRelation"
+                ExpressionTypes.UnaryRelation,
+                ExpressionTypes.BinaryRelation
             };
 
         public static T GetRandomListItem<T>(List<T> list)
@@ -137,12 +106,8 @@ namespace ObjectConditions.Tests
             return (T)values.GetValue(Random.Next(1, values.Length));
         }
 
-        public static IExpression GetRandomObject(string type, int depth, int maxDepth)
+        public static IExpression GetRandomObject(ExpressionTypes type, int depth, int maxDepth)
         {
-            if (string.IsNullOrEmpty(type))
-            {
-                throw new ArgumentOutOfRangeException(nameof(type), "type cannot be null or empty");
-            }
 
             if (depth < 0)
             {
@@ -156,11 +121,11 @@ namespace ObjectConditions.Tests
 
             switch (type)
             {
-                case "Term":
+                case ExpressionTypes.Term:
                 {
-                    return GetRandomObject(GetRandomTerminalType(), depth, maxDepth);
+                    return GetRandomObject(GetRandomListItem<ExpressionTypes>(Terminals), depth, maxDepth);
                 }
-                case "Boolean":
+                case ExpressionTypes.Boolean:
                 {
                     return new Term()
                     {
@@ -168,7 +133,7 @@ namespace ObjectConditions.Tests
                         ExpressionType = type
                     };
                 }
-                case "Integer":
+                case ExpressionTypes.Integer:
                 {
                     return new Term()
                     {
@@ -176,7 +141,7 @@ namespace ObjectConditions.Tests
                         ExpressionType = type
                     };
                 }
-                case "String":
+                case ExpressionTypes.String:
                 {
                     return new Term()
                     {
@@ -184,30 +149,39 @@ namespace ObjectConditions.Tests
                         ExpressionType = type
                     };
                 }
-                case "UnaryRelation":
+                case ExpressionTypes.SystemObject:
+                {
+                    return new Term()
+                    {
+                        ObjectType = GetRandomString(false),
+                        Value = GetRandomString(false),
+                        ExpressionType = ExpressionTypes.SystemObject
+                    };
+                }
+                case ExpressionTypes.UnaryRelation:
                 {
                     var newType =
-                        depth >= maxDepth ? GetRandomTerminalType() : GetRandomListItem<string>(NonTerminals);
+                        depth >= maxDepth ? GetRandomListItem<ExpressionTypes>(Terminals) : GetRandomListItem<ExpressionTypes>(NonTerminals);
 
                     return new UnaryRelation()
                     {
                             Expression = GetRandomObject(newType, depth + 1, maxDepth),
                             Operator = GetRandomEnumValue<UnaryOperators>(),
-                            ExpressionType = "UnaryRelation"
+                            ExpressionType = ExpressionTypes.UnaryRelation
                     };
                 }
-                case "BinaryRelation":
+                case ExpressionTypes.BinaryRelation:
                 {
-                    var typeLeft = GetRandomTerminalType();
+                    var typeLeft = GetRandomListItem<ExpressionTypes>(Terminals);
                     var typeRight =
-                        depth >= maxDepth ? GetRandomTerminalType() : GetRandomListItem<string>(NonTerminals);
+                        depth >= maxDepth ? GetRandomListItem<ExpressionTypes>(Terminals) : GetRandomListItem<ExpressionTypes>(NonTerminals);
 
                     return new BinaryRelation()
                     {
                         Left = GetRandomObject(typeLeft, depth + 1, maxDepth),
                         Operator = GetRandomEnumValue<BinaryOperators>(),
                         Right = GetRandomObject(typeRight, depth + 1, maxDepth),
-                        ExpressionType = "BinaryRelation"
+                        ExpressionType = ExpressionTypes.BinaryRelation
                     };
                 }
                 default:
@@ -219,11 +193,6 @@ namespace ObjectConditions.Tests
                     };
                 }
             }
-        }
-
-        public static string GetRandomTerminalType()
-        {
-            return GetRandomBoolean() ? GetRandomListItem<string>(BuiltInTypes) : GetRandomString(false);
         }
 
         public static string ExpressionToString(object obj, bool useParenthesis)
@@ -246,13 +215,13 @@ namespace ObjectConditions.Tests
                     result.Append(GetRandomCommentOrWhitespace());
                 }
 
-                if (!BuiltInTypes.Contains(typedobj.ExpressionType))
+                if (typedobj.ExpressionType == ExpressionTypes.SystemObject)
                 {
-                    result.AppendFormat("{0}::{1}", typedobj.ExpressionType, typedobj.Value);
+                    result.AppendFormat("{0}::{1}", typedobj.ObjectType, typedobj.Value);
                 }
                 else
                 {
-                    if (typedobj.ExpressionType == "String")
+                    if (typedobj.ExpressionType == ExpressionTypes.String)
                     {
                         result.AppendFormat("\"{0}\"", typedobj.Value);
                     }
@@ -382,7 +351,7 @@ namespace ObjectConditions.Tests
 
         public static IExpression GetRandomAst(int maxDepth)
         {
-            return GetRandomObject("BinaryRelation", 0, maxDepth);
+            return GetRandomObject(ExpressionTypes.BinaryRelation, 0, maxDepth);
         }
 
         public static IExpression ParseExtended(Parser<IExpression> parser, string input)

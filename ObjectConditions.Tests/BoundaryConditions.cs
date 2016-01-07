@@ -13,7 +13,7 @@ namespace ObjectConditions.Tests
 
             var ast = new Term()
             {
-                ExpressionType = "String",
+                ExpressionType = ExpressionTypes.String,
                 Value = string.Empty
             };
 
@@ -28,7 +28,7 @@ namespace ObjectConditions.Tests
 
             var ast = new Term()
             {
-                ExpressionType = "Integer",
+                ExpressionType = ExpressionTypes.Integer,
                 Value = "-1"
             };
 
@@ -49,7 +49,7 @@ namespace ObjectConditions.Tests
         public void EmptyTypedObjectTest1()
         {
             const string str = "::somestring";
-            LanguageGrammar.TypedObject.Parse(str);
+            LanguageGrammar.SystemObject.Parse(str);
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace ObjectConditions.Tests
         public void EmptyTypedObjectTest2()
         {
             const string str = "type::";
-            LanguageGrammar.TypedObject.Parse(str);
+            LanguageGrammar.SystemObject.Parse(str);
         }
 
         [Test]
@@ -75,30 +75,32 @@ namespace ObjectConditions.Tests
 
             var ast = new BinaryRelation()
             {
-                ExpressionType = "BinaryRelation",
+                ExpressionType = ExpressionTypes.BinaryRelation,
                 Left = new Term()
                 {
-                    ExpressionType = "String",
+                    ExpressionType = ExpressionTypes.String,
                     Value = string.Empty
                 },
                 Operator = BinaryOperators.Inequality,
                 Right = new BinaryRelation()
                 {
-                    ExpressionType = "BinaryRelation",
+                    ExpressionType = ExpressionTypes.BinaryRelation,
                     Left = new UnaryRelation()
                     {
-                        ExpressionType = "UnaryRelation",
+                        ExpressionType = ExpressionTypes.UnaryRelation,
                         Operator = UnaryOperators.NotExist,
                         Expression = new Term()
                         {
-                            ExpressionType = "g",
+                            ExpressionType = ExpressionTypes.SystemObject,
+                            ObjectType = "g",
                             Value = "zVBLdNY"
                         }
                     },
                     Operator = BinaryOperators.Equality,
                     Right = new Term()
                     {
-                        ExpressionType = "m",
+                        ExpressionType = ExpressionTypes.SystemObject,
+                        ObjectType = "m",
                         Value = "3U1Fe"
                     }
                 }

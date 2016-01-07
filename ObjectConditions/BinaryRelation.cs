@@ -13,7 +13,7 @@ namespace ObjectConditions
             }
         }
 
-        public string ExpressionType { get; set; }
+        public ExpressionTypes ExpressionType { get; set; }
 
         public IExpression Left { get; set; }
 
@@ -50,7 +50,7 @@ namespace ObjectConditions
         public override int GetHashCode()
         {
             var hash = 37;
-            hash = hash * 29 + ExpressionType.GetHashCode();
+            hash = hash * 29 + (int)ExpressionType;
 
             if (Left != null)
             {
