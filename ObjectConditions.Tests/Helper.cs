@@ -111,12 +111,12 @@ namespace ObjectConditions.Tests
 
             if (depth < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(depth), "depth cannot be negative.");
+                throw new ArgumentOutOfRangeException("depth", "depth cannot be negative.");
             }
 
             if (maxDepth < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(maxDepth), "maxDepth cannot be negative.");
+                throw new ArgumentOutOfRangeException("maxDepth", "maxDepth cannot be negative.");
             }
 
             switch (type)
@@ -160,18 +160,25 @@ namespace ObjectConditions.Tests
                 }
                 case ExpressionTypes.UnaryRelation:
                 {
-                    var newType =
-                        depth >= maxDepth ? GetRandomListItem<ExpressionTypes>(Terminals) : GetRandomListItem<ExpressionTypes>(NonTerminals);
+                    ExpressionTypes newType;
+                    UnaryOperators op;
 
-                    if (calculateTypes && depth >= maxDepth)
+                    if (calculateTypes)
                     {
-                        newType = GetRandomListItem<ExpressionTypes>(new List<ExpressionTypes>() {ExpressionTypes.SystemObject, ExpressionTypes.BinaryRelation} );
+                        newType = GetRandomListItem<ExpressionTypes>(new List<ExpressionTypes>() {ExpressionTypes.SystemObject, ExpressionTypes.BinaryRelation, ExpressionTypes.UnaryRelation} );
+                        op = GetRandomListItem<UnaryOperators>(Evaluator.OperatorsAndTypesInUnaryRelation[newType]);
+                    }
+                    else
+                    {
+                        newType =
+                            depth >= maxDepth ? GetRandomListItem<ExpressionTypes>(Terminals) : GetRandomListItem<ExpressionTypes>(NonTerminals);
+                        op = GetRandomEnumValue<UnaryOperators>();
                     }
 
                     return new UnaryRelation()
                     {
                             Expression = GetRandomObject(newType, depth + 1, maxDepth, calculateTypes),
-                            Operator = calculateTypes ? GetRandomListItem<UnaryOperators>(Evaluator.OperatorsAndTypesInUnaryRelation[newType]) : GetRandomEnumValue<UnaryOperators>(),
+                            Operator = op,
                             ExpressionType = ExpressionTypes.UnaryRelation
                     };
                 }
@@ -198,7 +205,7 @@ namespace ObjectConditions.Tests
                     return new BinaryRelation()
                     {
                         Left = GetRandomObject(typeLeft, depth + 1, maxDepth, calculateTypes),
-                        Operator = calculateTypes ? op : GetRandomEnumValue<BinaryOperators>(),
+                        Operator = op,
                         Right = GetRandomObject(typeRight, depth + 1, maxDepth, calculateTypes),
                         ExpressionType = ExpressionTypes.BinaryRelation
                     };
@@ -218,7 +225,7 @@ namespace ObjectConditions.Tests
         {
             if (obj == null)
             {
-                throw new ArgumentNullException(nameof(obj));
+                throw new ArgumentNullException("obj");
             }
 
             var par = useParenthesis && GetRandomBoolean();
@@ -288,6 +295,7 @@ namespace ObjectConditions.Tests
                 }
 
                 result.Append(ExpressionToString(rel.Operator, true));
+                result.Append(" ");
 
                 if (nonTerminal)
                 {
@@ -365,7 +373,7 @@ namespace ObjectConditions.Tests
                 return result.ToString();
             }
 
-            throw new ArgumentOutOfRangeException(nameof(obj), String.Format("Unknown object type {0}.", obj.GetType()));
+            throw new ArgumentOutOfRangeException("obj", String.Format("Unknown object type {0}.", obj.GetType()));
         }
 
         public static IExpression GetRandomAst(int maxDepth, bool calculateTypes)
@@ -413,7 +421,7 @@ namespace ObjectConditions.Tests
         {
             if (ast == null)
             {
-                throw new ArgumentNullException(nameof(ast), "Ast element should be not null.");
+                throw new ArgumentNullException("ast", "Ast element should be not null.");
             }
 
             return ast

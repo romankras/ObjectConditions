@@ -44,7 +44,7 @@ namespace ObjectConditions
         {
             if (expr == null)
             {
-                throw new ArgumentNullException(nameof(expr));
+                throw new ArgumentNullException("expr");
             }
 
             switch (expr.ExpressionType)
@@ -52,52 +52,54 @@ namespace ObjectConditions
                 case ExpressionTypes.BinaryRelation:
                 {
                     var rel = expr as BinaryRelation;
+                    var typeRight = rel.Right.ExpressionType;
+                    var typeLeft = rel.Left.ExpressionType;
 
-                    if (!OperatorsAndTypesInBinaryRelation.ContainsKey(rel.Right.ExpressionType))
+                    if (!OperatorsAndTypesInBinaryRelation.ContainsKey(typeRight))
                     {
-                        throw new TypeCheckerException(String.Format("Unknown type {0}", rel.Right.ExpressionType), expr);
+                        throw new TypeCheckerException(String.Format("Unknown type {0}", typeRight), expr);
                     }
 
-                    var comply = OperatorsAndTypesInBinaryRelation.Any(x => x.Key == rel.Right.ExpressionType && x.Value.Contains(rel.Operator));
+                    var comply = OperatorsAndTypesInBinaryRelation.Any(x => x.Key == typeRight && x.Value.Contains(rel.Operator));
 
                     if (!comply)
                     {
-                        var errorMessage = new StringBuilder();
+                        var msg = new StringBuilder();
 
-                        errorMessage.AppendFormat("Operator {0} cannot be used with type {1}. List of avaiable operators:", rel.Operator, rel.Right.ExpressionType);
-                        foreach (var op in OperatorsAndTypesInBinaryRelation[rel.Right.ExpressionType])
+                        msg.AppendFormat("Operator {0} cannot be used with type {1}. List of avaiable operators:", rel.Operator, typeRight);
+                        foreach (var op in OperatorsAndTypesInBinaryRelation[typeRight])
                         {
-                            errorMessage.AppendFormat(" {0} ", op);
+                            msg.AppendFormat(" {0} ", op);
                         }
 
-                        throw new TypeCheckerException(errorMessage.ToString(), expr);
+                        throw new TypeCheckerException(msg.ToString(), expr);
                     }
 
-                    if (!OperatorsAndTypesInBinaryRelation.ContainsKey(rel.Left.ExpressionType))
+                    if (!OperatorsAndTypesInBinaryRelation.ContainsKey(typeLeft))
                     {
-                        throw new TypeCheckerException(String.Format("Unknown type {0}", rel.Left.ExpressionType), expr);
+                        throw new TypeCheckerException(String.Format("Unknown type {0}", typeLeft), expr);
                     }
 
-                    comply = OperatorsAndTypesInBinaryRelation.Any(x => x.Key == rel.Left.ExpressionType && x.Value.Contains(rel.Operator));
+                    comply = OperatorsAndTypesInBinaryRelation.Any(x => x.Key == typeLeft && x.Value.Contains(rel.Operator));
 
                     if (!comply)
                     {
-                        var errorMessage = new StringBuilder();
+                        var msg = new StringBuilder();
 
-                        errorMessage.AppendFormat("Operator {0} cannot be used with type {1}. List of avaiable operators:", rel.Operator, rel.Left.ExpressionType);
-                        foreach (var op in OperatorsAndTypesInBinaryRelation[rel.Left.ExpressionType])
+                        msg.AppendFormat("Operator {0} cannot be used with type {1}. List of avaiable operators:", rel.Operator, typeLeft);
+                        foreach (var op in OperatorsAndTypesInBinaryRelation[typeLeft])
                         {
-                            errorMessage.AppendFormat(" {0} ", op);
+                            msg.AppendFormat(" {0} ", op);
                         }
 
-                        throw new TypeCheckerException(errorMessage.ToString(), expr);
+                        throw new TypeCheckerException(msg.ToString(), expr);
                     }
 
-                    comply = TypesInBinaryRelation[rel.Left.ExpressionType].Contains(rel.Right.ExpressionType);
+                    comply = TypesInBinaryRelation[typeLeft].Contains(typeRight);
 
                     if (!comply)
                     {
-                        throw new TypeCheckerException(String.Format("Types {0} and {1} cannot be used together in binary relation", rel.Left.ExpressionType, rel.Right.ExpressionType), expr);
+                        throw new TypeCheckerException(String.Format("Types {0} and {1} cannot be used together in binary relation", typeLeft, typeRight), expr);
                     }
 
                     break;
@@ -105,24 +107,26 @@ namespace ObjectConditions
                 case ExpressionTypes.UnaryRelation:
                 {
                     var rel = expr as UnaryRelation;
-                    var comply = OperatorsAndTypesInUnaryRelation.Any(x => x.Key == rel.Expression.ExpressionType && x.Value.Contains(rel.Operator));
+                    var exprType = rel.Expression.ExpressionType;
 
-                    if (!OperatorsAndTypesInUnaryRelation.ContainsKey(rel.Expression.ExpressionType))
+                    var comply = OperatorsAndTypesInUnaryRelation.Any(x => x.Key == exprType && x.Value.Contains(rel.Operator));
+
+                    if (!OperatorsAndTypesInUnaryRelation.ContainsKey(exprType))
                     {
-                        throw new TypeCheckerException(String.Format("Unknown type {0}", rel.Expression.ExpressionType), expr);
+                        throw new TypeCheckerException(String.Format("Unknown type {0}", exprType), expr);
                     }
 
                     if (!comply)
                     {
-                        var errorMessage = new StringBuilder();
+                        var msg = new StringBuilder();
 
-                        errorMessage.AppendFormat("Operator {0} cannot be used with type {1}. List of avaiable operators:", rel.Operator, rel.Expression.ExpressionType);
-                        foreach (var op in OperatorsAndTypesInUnaryRelation[rel.Expression.ExpressionType])
+                        msg.AppendFormat("Operator {0} cannot be used with type {1}. List of avaiable operators:", rel.Operator, exprType);
+                        foreach (var op in OperatorsAndTypesInUnaryRelation[exprType])
                         {
-                            errorMessage.AppendFormat(" {0} ", op);
+                            msg.AppendFormat(" {0} ", op);
                         }
 
-                        throw new TypeCheckerException(errorMessage.ToString(), expr);
+                        throw new TypeCheckerException(msg.ToString(), expr);
                     }
 
                     break;
